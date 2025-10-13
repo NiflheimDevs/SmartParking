@@ -1,18 +1,33 @@
 #include <Arduino.h>
-
-// put function declarations here:
-int myFunction(int, int);
+#include "config.h"
+#include "motors/servo_control.h"
+#include "sensors/ultrasonic_sensor.h"
+#include "RFID/RFID_reader.h"
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+    Serial.begin(115200);
+    setupServo(SERVO_PIN);
+    setupUltrasonic(ULTRASONIC_TRIG_PIN, ULTRASONIC_ECHO_PIN);
+    setupRFID(RFID_SS_PIN, RFID_RST_PIN);
+    Serial.println("System initialized ✅");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+    float distance = getDistance();
+    String cardUID;
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    // RFID check
+    if (isAuthorizedCard(cardUID)) {
+        Serial.println("Gate opening...");
+        setServoAngle(SERVO_OPEN_ANGLE);
+        delay(3000); // keep gate open
+        setServoAngle(SERVO_CLOSED_ANGLE);
+    }
+
+    // Parking sensor logic
+    if (distance < PARKING_THRESHOLD) {
+        Serial.println("🚗 Vehicle detected!");
+    }
+
+    delay(SENSOR_READ_INTERVAL);
 }

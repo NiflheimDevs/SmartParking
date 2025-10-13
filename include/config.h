@@ -1,0 +1,19 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define DEBUG true
+
+#define SERVO_PIN 5
+
+#define ULTRASONIC_TRIG_PIN 12
+#define ULTRASONIC_ECHO_PIN 14
+
+#define RFID_SS_PIN 21
+#define RFID_RST_PIN 22
+
+#define PARKING_THRESHOLD 10
+#define SERVO_OPEN_ANGLE 90
+#define SERVO_CLOSED_ANGLE 0
+#define SENSOR_READ_INTERVAL 500
+
+#endif
