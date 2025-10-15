@@ -1,0 +1,38 @@
+1760542655: mosquitto version 2.0.22 starting
+1760542655: Config loaded from /mosquitto/config/mosquitto.conf.
+1760542655: Opening ipv4 listen socket on port 1883.
+1760542655: Opening ipv6 listen socket on port 1883.
+1760542655: Opening websockets listen socket on port 9001.
+1760542655: mosquitto version 2.0.22 running
+1760543034: New connection from 192.168.65.1:37844 on port 1883.
+1760543034: New client connected from 192.168.65.1:37844 as auto-19A19915-9F2F-74C8-484D-B7C89C95EFA6 (p2, c1, k60).
+1760543083: New connection from 192.168.65.1:19633 on port 1883.
+1760543083: New client connected from 192.168.65.1:19633 as auto-E5E7CE2A-84EC-FA9B-B156-46AD6E7A059A (p2, c1, k60).
+1760543083: Client auto-E5E7CE2A-84EC-FA9B-B156-46AD6E7A059A disconnected.
+1760543117: New connection from 192.168.65.1:28561 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:46205 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:44685 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:17103 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:43064 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:61641 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:27381 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:44389 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:25030 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543117: New connection from 192.168.65.1:57814 on port 1883.
+1760543117: Client <unknown> disconnected due to protocol error.
+1760543208: Client auto-19A19915-9F2F-74C8-484D-B7C89C95EFA6 disconnected.
+1760543451: New connection from 192.168.65.1:53786 on port 1883.
+1760543451: New client connected from 192.168.65.1:53786 as go_mqtt_client (p2, c1, k30).
+1760543516: New connection from ::1:51066 on port 1883.
+1760543516: New client connected from ::1:51066 as auto-36DC6E57-3011-5B64-CD3F-F57EC3FAE40E (p2, c1, k60).
+1760543547: Client auto-36DC6E57-3011-5B64-CD3F-F57EC3FAE40E disconnected.
+1760543553: Client go_mqtt_client closed its connection.
