@@ -1,6 +1,6 @@
 #include "RFID/RFID_reader.h"
 
-MFRC522 mfrc522;  // Create RFID instance
+MFRC522 mfrc522;
 
 void setupRFID(int ssPin, int rstPin) {
     SPI.begin();
@@ -13,7 +13,6 @@ bool isAuthorizedCard(String &cardUID) {
         return false;
     }
 
-    // Build card UID as hex string
     cardUID = "";
     for (byte i = 0; i < mfrc522.uid.size; i++) {
         cardUID += String(mfrc522.uid.uidByte[i], HEX);
@@ -21,7 +20,6 @@ bool isAuthorizedCard(String &cardUID) {
 
     cardUID.toUpperCase();
 
-    // ✅ Example authorized UIDs (replace with your own)
     String authorizedCards[] = {"A1B2C3D4", "F1E2D3C4"};
     for (auto &auth : authorizedCards) {
         if (cardUID == auth) {

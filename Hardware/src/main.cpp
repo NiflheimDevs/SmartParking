@@ -16,15 +16,13 @@ void loop() {
     float distance = getDistance();
     String cardUID;
 
-    // RFID check
     if (isAuthorizedCard(cardUID)) {
         Serial.println("Gate opening...");
         setServoAngle(SERVO_OPEN_ANGLE);
-        delay(3000); // keep gate open
+        delay(3000);
         setServoAngle(SERVO_CLOSED_ANGLE);
     }
 
-    // Parking sensor logic
     if (distance < PARKING_THRESHOLD) {
         Serial.println("🚗 Vehicle detected!");
     }
