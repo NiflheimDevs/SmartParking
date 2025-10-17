@@ -11,18 +11,33 @@ import (
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
+	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
 	"github.com/niflheimdevs/smartparking/internal/repository"
 	"github.com/niflheimdevs/smartparking/internal/usecase"
+	"gorm.io/gorm"
 )
 
-// Injectors from wire.go:
+// Injectors from wire_http.go:
 
-func InitializeApp() (*http.App, error) {
+func InitializeHttpApp() (*http.App, error) {
 	configConfig := config.Load()
 	gormDB := db.Connect(configConfig)
 	vehicleRepository := repository.NewVehicleRepository(gormDB)
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
-	vehicleHandler := handler.NewVehicleHandler(vehicleUseCase)
-	app := http.NewApp(configConfig, gormDB, vehicleHandler)
+	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
+	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler)
 	return app, nil
+}
+
+// Injectors from wire_mqtt.go:
+
+func InitializeMQTTApp(cfg *config.Config, db2 *gorm.DB) (*mqtt.MQTTClient, error) {
+	entranceExitRepository := repository.NewEntranceExitRepository(db2)
+	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository)
+	parkingSpotRepository := repository.NewParkingSpotRepository(db2)
+	parkingSpotUseCase := usecase.NewParkingSpotUseCase(parkingSpotRepository)
+	sensorHandler := mqtt_handler.NewSensorHandler(entranceExitUseCase, parkingSpotUseCase)
+	mqttClient := mqtt.InitMQTT(cfg, sensorHandler)
+	return mqttClient, nil
 }

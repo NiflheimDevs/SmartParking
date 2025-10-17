@@ -64,3 +64,8 @@
 1760655388: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1760657190: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1760658990: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760689131: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760690932: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760692536: New connection from 192.168.65.1:65347 on port 1883.
+1760692536: New client connected from 192.168.65.1:65347 as smart-parking-server (p2, c1, k30).
+1760692549: Client smart-parking-server closed its connection.

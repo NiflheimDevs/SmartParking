@@ -6,17 +6,15 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-// Topic constants
 const (
 	TopicEntrance = "parking/entrance"
 	TopicExit     = "parking/exit"
 )
 
-// SubscribeTopics connects handlers to topics.
-func (m *MQTTClient) SubscribeTopics(handler *Handler) {
+func (m *MQTTClient) SubscribeTopics() {
 	topics := map[string]mqtt.MessageHandler{
-		TopicEntrance: handler.OnEntrance,
-		TopicExit:     handler.OnExit,
+		TopicEntrance: m.Handler.OnEntrance,
+		TopicExit:     m.Handler.OnExit,
 	}
 
 	for topic, h := range topics {

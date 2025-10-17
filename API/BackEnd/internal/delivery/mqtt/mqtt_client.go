@@ -5,13 +5,18 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/niflheimdevs/smartparking/internal/config"
+	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
+	"gorm.io/gorm"
 )
 
 type MQTTClient struct {
-	client mqtt.Client
+	client  mqtt.Client
+	Handler *mqtt_handler.SensorHandler
+	Config  *config.Config
+	DB      *gorm.DB
 }
 
-func InitMQTT(cfg *config.Config) *MQTTClient {
+func InitMQTT(cfg *config.Config, handler *mqtt_handler.SensorHandler) *MQTTClient {
 	opts := mqtt.NewClientOptions().
 		AddBroker(cfg.MQTT.Broker).
 		SetClientID(cfg.MQTT.ClientID)

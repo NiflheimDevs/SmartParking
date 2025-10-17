@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
-	"github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +13,7 @@ type App struct {
 	DB     *gorm.DB
 }
 
-func NewApp(cfg *config.Config, db *gorm.DB, vehicleHandler *handler.VehicleHandler) *App {
+func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler) *App {
 	r := gin.Default()
 
 	api := r.Group("/api/v1")
