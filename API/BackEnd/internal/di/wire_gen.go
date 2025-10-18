@@ -26,7 +26,10 @@ func InitializeHttpApp() (*http.App, error) {
 	vehicleRepository := repository.NewVehicleRepository(gormDB)
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
 	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
-	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler)
+	entranceExitRepository := repository.NewEntranceExitRepository(gormDB)
+	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository)
+	entranceExitHandler := http_handler.NewEntranceExitHandler(entranceExitUseCase)
+	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler, entranceExitHandler)
 	return app, nil
 }
 

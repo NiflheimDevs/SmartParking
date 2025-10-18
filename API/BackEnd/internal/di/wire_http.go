@@ -22,15 +22,19 @@ func InitializeHttpApp() (*http.App, error) {
 
 		// Repositories
 		repository.NewVehicleRepository,
+		repository.NewEntranceExitRepository,
 
 		// Bind interfaces
 		wire.Bind(new(usecase.VehicleRepository), new(*repository.VehicleRepository)),
+		wire.Bind(new(usecase.EntranceExitRepository), new(*repository.EntranceExitRepository)),
 
 		// Usecases
 		usecase.NewVehicleUseCase,
+		usecase.NewEntranceExitUseCase,
 
 		// Handlers
 		http_handler.NewVehicleHandler,
+		http_handler.NewEntranceExitHandler,
 
 		// HTTP App
 		http.NewHttpApp,

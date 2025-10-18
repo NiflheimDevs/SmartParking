@@ -3,9 +3,12 @@ package domain
 import "time"
 
 type EntranceExit struct {
-	ID           int       `gorm:"primaryKey" json:"id"`
-	VehicleID    int       `gorm:"" json:"vehicle_id"`
-	EntranceTime time.Time `json:"enterance_time"`
-	ExitTime     time.Time `json:"exit_time"`
-	SpotID       int       `json:"spot_id"`
+	ID           uint       `gorm:"primaryKey;autoIncrement" json:"id"`
+	VehicleID    uint       `gorm:"not null" json:"vehicle_id"`
+	SpotID       *uint      `json:"spot_id,omitempty"`
+	EntranceTime time.Time  `gorm:"autoCreateTime" json:"entrance_time"`
+	ExitTime     *time.Time `json:"exit_time"`
+
+	Vehicle     Vehicle      `gorm:"foreignKey:VehicleID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"vehicle,omitempty"`
+	ParkingSpot *ParkingSpot `gorm:"foreignKey:SpotID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL" json:"parking_spot,omitempty"`
 }

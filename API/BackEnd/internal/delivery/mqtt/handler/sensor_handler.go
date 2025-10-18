@@ -17,7 +17,6 @@ func NewSensorHandler(eeuc *usecase.EntranceExitUseCase, psuc *usecase.ParkingSp
 	}
 }
 
-// Payload structure (sent from IoT device)
 type EntrancePayload struct {
 	RFID      string `json:"rfid"`
 	Timestamp int64  `json:"timestamp"`

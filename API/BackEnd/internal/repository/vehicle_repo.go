@@ -24,3 +24,15 @@ func (r *VehicleRepository) GetAll() ([]domain.Vehicle, error) {
 	err := r.db.Find(&vehicles).Error
 	return vehicles, err
 }
+
+func (r *VehicleRepository) Update(id uint, v *domain.Vehicle) error {
+	var existing domain.Vehicle
+	err := r.db.Model(&existing).
+		Where("id = ?", id).
+		Select("owner_name", "owner_contact", "plate", "rfid_id", "vehicle_type").
+		Updates(v).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

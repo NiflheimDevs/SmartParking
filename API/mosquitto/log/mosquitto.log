@@ -70,3 +70,35 @@
 1760692536: New client connected from 192.168.65.1:65347 as smart-parking-server (p2, c1, k30).
 1760692549: Client smart-parking-server closed its connection.
 1760692733: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760746001: New connection from 192.168.65.1:40124 on port 1883.
+1760746001: New client connected from 192.168.65.1:40124 as smart-parking-server (p2, c1, k30).
+1760746002: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760746284: Client smart-parking-server closed its connection.
+1760746623: New connection from 192.168.65.1:61405 on port 1883.
+1760746623: New client connected from 192.168.65.1:61405 as smart-parking-server (p2, c1, k30).
+1760746971: Client smart-parking-server closed its connection.
+1760746976: New connection from 192.168.65.1:34342 on port 1883.
+1760746976: New client connected from 192.168.65.1:34342 as smart-parking-server (p2, c1, k30).
+1760747104: Client smart-parking-server closed its connection.
+1760747518: New connection from 192.168.65.1:58609 on port 1883.
+1760747518: New client connected from 192.168.65.1:58609 as smart-parking-server (p2, c1, k30).
+1760747558: Client smart-parking-server closed its connection.
+1760751903: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760786013: New connection from 192.168.65.1:21243 on port 1883.
+1760786013: New client connected from 192.168.65.1:21243 as smart-parking-server (p2, c1, k30).
+1760786275: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1760786410: Client smart-parking-server closed its connection.
+1760786431: New connection from 192.168.65.1:38299 on port 1883.
+1760786431: New client connected from 192.168.65.1:38299 as smart-parking-server (p2, c1, k30).
+1760786535: Client smart-parking-server closed its connection.
+1760786539: New connection from 192.168.65.1:47437 on port 1883.
+1760786539: New client connected from 192.168.65.1:47437 as smart-parking-server (p2, c1, k30).
+1760786601: Client smart-parking-server closed its connection.
+1760786603: New connection from 192.168.65.1:54578 on port 1883.
+1760786603: New client connected from 192.168.65.1:54578 as smart-parking-server (p2, c1, k30).
+1760786781: Client smart-parking-server closed its connection.
+1760787382: New connection from 192.168.65.1:19635 on port 1883.
+1760787382: New client connected from 192.168.65.1:19635 as smart-parking-server (p2, c1, k30).
+1760787407: Client smart-parking-server closed its connection.
+1760787425: New connection from 192.168.65.1:64778 on port 1883.
+1760787425: New client connected from 192.168.65.1:64778 as smart-parking-server (p2, c1, k30).
