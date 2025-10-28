@@ -32,3 +32,7 @@ func (r *EntranceExitRepository) VehicleLog(id uint) ([]domain.EntranceExit, err
 	err := r.db.Where("vehicle_id = ?", id).Find(&log).Error
 	return log, err
 }
+
+func (r *EntranceExitRepository) Enter(ee domain.EntranceExit) error {
+	return r.db.Create(ee).Error
+}

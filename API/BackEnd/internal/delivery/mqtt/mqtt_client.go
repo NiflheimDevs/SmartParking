@@ -34,3 +34,8 @@ func (m *MQTTClient) Listen() {
 		log.Println("Entrance detected:", string(msg.Payload()))
 	})
 }
+
+func (m *MQTTClient) Publish(topic string, qos byte, retained bool, payload interface{}) {
+	token := m.client.Publish(topic, qos, retained, payload)
+	token.Wait()
+}

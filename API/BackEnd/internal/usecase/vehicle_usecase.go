@@ -12,6 +12,8 @@ type VehicleRepository interface {
 	GetInfo(id uint) (domain.Vehicle, error)
 	Update(id uint, v *domain.Vehicle) error
 	Delete(id uint) error
+	CheckRFID(id string) (bool, error)
+	VehicleInfoRFID(id string) (domain.Vehicle, error)
 }
 
 type VehicleUseCase struct {
@@ -48,4 +50,12 @@ func (uc *VehicleUseCase) VehicleInfo(id uint) (domain.Vehicle, error) {
 
 func (uc *VehicleUseCase) DeleteVehicle(id uint) error {
 	return uc.repo.Delete(id)
+}
+
+func (uc *VehicleUseCase) CheckRFID(id string) (bool, error) {
+	return uc.repo.CheckRFID(id)
+}
+
+func (uc *VehicleUseCase) VehicleInfoRFID(id string) (domain.Vehicle, error) {
+	return uc.repo.VehicleInfoRFID(id)
 }

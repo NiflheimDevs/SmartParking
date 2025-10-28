@@ -27,7 +27,7 @@ func InitializeHttpApp() (*http.App, error) {
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
 	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
 	entranceExitRepository := repository.NewEntranceExitRepository(gormDB)
-	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository)
+	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository, vehicleUseCase)
 	entranceExitHandler := http_handler.NewEntranceExitHandler(entranceExitUseCase)
 	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler, entranceExitHandler)
 	return app, nil
@@ -37,10 +37,12 @@ func InitializeHttpApp() (*http.App, error) {
 
 func InitializeMQTTApp(cfg *config.Config, db2 *gorm.DB) (*mqtt.MQTTClient, error) {
 	entranceExitRepository := repository.NewEntranceExitRepository(db2)
-	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository)
+	vehicleRepository := repository.NewVehicleRepository(db2)
+	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
+	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository, vehicleUseCase)
 	parkingSpotRepository := repository.NewParkingSpotRepository(db2)
 	parkingSpotUseCase := usecase.NewParkingSpotUseCase(parkingSpotRepository)
-	sensorHandler := mqtt_handler.NewSensorHandler(entranceExitUseCase, parkingSpotUseCase)
+	sensorHandler := mqtt_handler.NewSensorHandler(entranceExitUseCase, parkingSpotUseCase, vehicleUseCase)
 	mqttClient := mqtt.InitMQTT(cfg, sensorHandler)
 	return mqttClient, nil
 }

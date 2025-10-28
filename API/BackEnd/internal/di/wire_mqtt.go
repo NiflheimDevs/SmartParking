@@ -18,11 +18,14 @@ func InitializeMQTTApp(cfg *config.Config, db *gorm.DB) (*mqtt.MQTTClient, error
 	wire.Build(
 		repository.NewEntranceExitRepository,
 		repository.NewParkingSpotRepository,
+		repository.NewVehicleRepository,
 		wire.Bind(new(usecase.EntranceExitRepository), new(*repository.EntranceExitRepository)),
 		wire.Bind(new(usecase.ParkingSpotRepository), new(*repository.ParkingSpotRepository)),
+		wire.Bind(new(usecase.VehicleRepository), new(*repository.VehicleRepository)),
 
 		usecase.NewEntranceExitUseCase,
 		usecase.NewParkingSpotUseCase,
+		usecase.NewVehicleUseCase,
 
 		mqtt_handler.NewSensorHandler,
 
