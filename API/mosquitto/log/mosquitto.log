@@ -102,3 +102,6 @@
 1760787407: Client smart-parking-server closed its connection.
 1760787425: New connection from 192.168.65.1:64778 on port 1883.
 1760787425: New client connected from 192.168.65.1:64778 as smart-parking-server (p2, c1, k30).
+1760787792: Client smart-parking-server closed its connection.
+1760787994: mosquitto version 2.0.22 terminating
+1760787994: Saving in-memory database to /mosquitto/data//mosquitto.db.

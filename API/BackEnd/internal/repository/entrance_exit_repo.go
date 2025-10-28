@@ -16,5 +16,19 @@ func NewEntranceExitRepository(db *gorm.DB) *EntranceExitRepository {
 }
 
 func (r *EntranceExitRepository) GetAll() ([]domain.EntranceExit, error) {
-	return nil, nil
+	var ees []domain.EntranceExit
+	err := r.db.Find(&ees).Error
+	return ees, err
+}
+
+func (r *EntranceExitRepository) Info(id uint) (domain.EntranceExit, error) {
+	var ee domain.EntranceExit
+	err := r.db.First(&ee, id).Error
+	return ee, err
+}
+
+func (r *EntranceExitRepository) VehicleLog(id uint) ([]domain.EntranceExit, error) {
+	var log []domain.EntranceExit
+	err := r.db.Where("vehicle_id = ?", id).Find(&log).Error
+	return log, err
 }

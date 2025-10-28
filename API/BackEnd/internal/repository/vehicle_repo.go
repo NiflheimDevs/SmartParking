@@ -36,3 +36,13 @@ func (r *VehicleRepository) Update(id uint, v *domain.Vehicle) error {
 	}
 	return nil
 }
+
+func (r *VehicleRepository) GetInfo(id uint) (domain.Vehicle, error) {
+	var vehicle domain.Vehicle
+	err := r.db.First(&vehicle, id).Error
+	return vehicle, err
+}
+
+func (r *VehicleRepository) Delete(id uint) error {
+	return r.db.Delete(&domain.Vehicle{}, id).Error
+}

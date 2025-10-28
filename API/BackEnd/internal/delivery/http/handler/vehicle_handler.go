@@ -56,3 +56,28 @@ func (h *VehicleHandler) List(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, vehicles)
 }
+
+func (h *VehicleHandler) Info(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.Atoi(idStr)
+
+	vehicle, err := h.uc.VehicleInfo(uint(id))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, vehicle)
+}
+
+func (h *VehicleHandler) Delete(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.Atoi(idStr)
+
+	if err := h.uc.DeleteVehicle(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "vehicle deleted successfully",
+	})
+}

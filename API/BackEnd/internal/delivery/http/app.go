@@ -18,14 +18,18 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.Ve
 
 	vehicle_api := r.Group("/api/v1/vehicles")
 	{
-		vehicle_api.POST("/", vehicleHandler.Register)
 		vehicle_api.GET("/", vehicleHandler.List)
+		vehicle_api.GET("/:id", vehicleHandler.Info)
+		vehicle_api.POST("/", vehicleHandler.Register)
 		vehicle_api.PUT("/:id", vehicleHandler.Update)
+		vehicle_api.DELETE("/:id", vehicleHandler.Delete)
 	}
 
 	ee_api := r.Group("/api/v1/ee")
 	{
 		ee_api.GET("/", entranceexitHandler.List)
+		ee_api.GET("/:id", entranceexitHandler.Info)
+		ee_api.GET("/vehicle/:id", entranceexitHandler.VehicleLog)
 	}
 
 	return &App{
