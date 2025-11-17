@@ -30,7 +30,7 @@ func InitMQTT(cfg *config.Config, handler *mqtt_handler.SensorHandler) *MQTTClie
 }
 
 func (m *MQTTClient) Listen() {
-	m.client.Subscribe("parking/gate/entrance", 0, func(c mqtt.Client, msg mqtt.Message) {
+	m.client.Subscribe("parking/entrance", 0, func(c mqtt.Client, msg mqtt.Message) {
 		if m.Handler != nil {
 			m.Handler.OnEntrance(c, msg)
 			return
@@ -38,7 +38,7 @@ func (m *MQTTClient) Listen() {
 		log.Println("Entrance detected (no handler):", string(msg.Payload()))
 	})
 
-	m.client.Subscribe("parking/gate/exit", 0, func(c mqtt.Client, msg mqtt.Message) {
+	m.client.Subscribe("parking/exit", 0, func(c mqtt.Client, msg mqtt.Message) {
 		if m.Handler != nil {
 			m.Handler.OnExit(c, msg)
 			return
