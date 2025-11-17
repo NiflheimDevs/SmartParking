@@ -4,8 +4,8 @@ services:
     container_name: mosquitto
     restart: unless-stopped
     ports:
-      - "1883:1883"   # MQTT
-      - "9001:9001"   # WebSocket
+      - "1883:1883"
+      - "9001:9001"
     volumes:
       - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto/data:/mosquitto/data
@@ -23,5 +23,16 @@ services:
     volumes:
       - ./server/init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - pgdata:/var/lib/postgresql/data
+  app:
+    build:
+      context: ./BackEnd
+      dockerfile: dockerfile
+    image: ghcr.io/niflheimdevs/smartparking
+    container_name: application
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
 volumes:
   pgdata:

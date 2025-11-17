@@ -26,12 +26,24 @@ func InitMQTT(cfg *config.Config, handler *mqtt_handler.SensorHandler) *MQTTClie
 		log.Fatalf("MQTT connection failed: %v", token.Error())
 	}
 
-	return &MQTTClient{client: client}
+	return &MQTTClient{client: client, Handler: handler, Config: cfg}
 }
 
 func (m *MQTTClient) Listen() {
 	m.client.Subscribe("parking/gate/entrance", 0, func(c mqtt.Client, msg mqtt.Message) {
-		log.Println("Entrance detected:", string(msg.Payload()))
+		if m.Handler != nil {
+			m.Handler.OnEntrance(c, msg)
+			return
+		}
+		log.Println("Entrance detected (no handler):", string(msg.Payload()))
+	})
+
+	m.client.Subscribe("parking/gate/exit", 0, func(c mqtt.Client, msg mqtt.Message) {
+		if m.Handler != nil {
+			m.Handler.OnExit(c, msg)
+			return
+		}
+		log.Println("Exit detected (no handler):", string(msg.Payload()))
 	})
 }
 
