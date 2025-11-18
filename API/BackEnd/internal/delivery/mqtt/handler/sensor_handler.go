@@ -30,11 +30,17 @@ type RequestPayload struct {
 	RFID string `json:"rfid"`
 }
 
-type ResponsePayload struct {
+type EnterResponsePayload struct {
 	RFID        string `json:"rfid"`
 	ParkingSpot int    `json:"parking_spot"`
 	Exist       bool   `json:"exist"`
 	Error       string `json:"error"`
+}
+
+type ExitRespnsePayload struct {
+	RFID  string `json:"rfid"`
+	Price int64  `json:"price"`
+	Error string `json:"error"`
 }
 
 func (h *SensorHandler) OnEntrance(client mqtt.Client, msg mqtt.Message) {
@@ -43,14 +49,14 @@ func (h *SensorHandler) OnEntrance(client mqtt.Client, msg mqtt.Message) {
 
 	if err := json.Unmarshal(msg.Payload(), &p); err != nil {
 		log.Printf("Can't Parse JSON")
-		resp := ResponsePayload{RFID: "", ParkingSpot: 0, Exist: false, Error: err.Error()}
+		resp := EnterResponsePayload{RFID: "", ParkingSpot: 0, Exist: false, Error: err.Error()}
 		if b, mErr := json.Marshal(resp); mErr == nil {
 			client.Publish(topic, 0, false, b)
 		}
 		return
 	}
 
-	resp := ResponsePayload{RFID: p.RFID}
+	resp := EnterResponsePayload{RFID: p.RFID}
 
 	exists, err := h.VehicleUseCase.CheckRFID(p.RFID)
 	if err != nil {
@@ -106,15 +112,38 @@ func (h *SensorHandler) OnExit(client mqtt.Client, msg mqtt.Message) {
 	topic := "parking/exit/response"
 
 	if err := json.Unmarshal(msg.Payload(), &p); err != nil {
-		resp := ResponsePayload{RFID: "", ParkingSpot: 0, Exist: false, Error: err.Error()}
+		log.Printf("Can't Parse JSON")
+		resp := ExitRespnsePayload{RFID: "", Price: 0, Error: err.Error()}
 		if b, mErr := json.Marshal(resp); mErr == nil {
 			client.Publish(topic, 0, false, b)
 		}
 		return
 	}
 
-	// Exit handling not implemented yet in usecase layer.
-	resp := ResponsePayload{RFID: p.RFID, ParkingSpot: 0, Exist: false, Error: "exit not implemented"}
+	resp := ExitRespnsePayload{RFID: p.RFID}
+
+	exists, err := h.VehicleUseCase.CheckRFID(p.RFID)
+	if err != nil || !exists {
+		log.Printf("Error in check RFID or it doesn't exists")
+		resp.Error = err.Error()
+		if b, mErr := json.Marshal(resp); mErr == nil {
+			client.Publish(topic, 0, false, b)
+		}
+		return
+	}
+
+	price, err := h.EntranceExitUseCase.Exit(p.RFID)
+	if err != nil {
+		log.Printf("Error on exit")
+		resp.Error = err.Error()
+		if b, mErr := json.Marshal(resp); mErr == nil {
+			client.Publish(topic, 0, false, b)
+		}
+		return
+	}
+
+	resp.Price = price
+	resp.Error = ""
 	if b, mErr := json.Marshal(resp); mErr == nil {
 		client.Publish(topic, 0, false, b)
 	}

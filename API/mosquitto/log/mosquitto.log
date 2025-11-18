@@ -267,3 +267,19 @@
 1763389278: Client smart-parking-server closed its connection.
 1763389278: mosquitto version 2.0.22 terminating
 1763389278: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1763441652: mosquitto version 2.0.22 starting
+1763441652: Config loaded from /mosquitto/config/mosquitto.conf.
+1763441652: Opening ipv4 listen socket on port 1883.
+1763441652: Opening ipv6 listen socket on port 1883.
+1763441652: Opening websockets listen socket on port 9001.
+1763441652: mosquitto version 2.0.22 running
+1763441653: New connection from 172.18.0.4:55926 on port 1883.
+1763441653: New client connected from 172.18.0.4:55926 as smart-parking-server (p2, c1, k30).
+1763441664: New connection from 192.168.65.1:58548 on port 1883.
+1763441664: New client connected from 192.168.65.1:58548 as postman-mqtt-client-1763386728866 (p5, c0, k60).
+1763441681: Client postman-mqtt-client-1763386728866 disconnected.
+1763441733: New connection from 192.168.65.1:23233 on port 1883.
+1763441733: New client connected from 192.168.65.1:23233 as postman-mqtt-client-1763386728866 (p5, c0, k60).
+1763441817: Client smart-parking-server closed its connection.
+1763441817: mosquitto version 2.0.22 terminating
+1763441817: Saving in-memory database to /mosquitto/data//mosquitto.db.

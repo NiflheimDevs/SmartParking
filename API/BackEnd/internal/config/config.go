@@ -15,6 +15,9 @@ type Config struct {
 		Broker   string
 		ClientID string
 	}
+	Constant struct {
+		PricePerHour int64
+	}
 }
 
 func Load() *Config {
@@ -25,6 +28,7 @@ func Load() *Config {
 	cfg.MQTT.Broker = getEnv("MQTT_BROKER", "tcp://mosquitto:1883")
 	cfg.MQTT.ClientID = getEnv("MQTT_CLIENT_ID", "smart-parking-server")
 
+	cfg.Constant.PricePerHour = 500000
 	return cfg
 }
 

@@ -10,9 +10,9 @@ import (
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
-	"github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
 	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
-	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
+	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
 	"github.com/niflheimdevs/smartparking/internal/repository"
 	"github.com/niflheimdevs/smartparking/internal/usecase"
 	"gorm.io/gorm"
@@ -27,7 +27,7 @@ func InitializeHttpApp() (*http.App, error) {
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
 	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
 	entranceExitRepository := repository.NewEntranceExitRepository(gormDB)
-	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository, vehicleUseCase)
+	entranceExitUseCase := usecase.NewEntranceExitUseCase(configConfig, entranceExitRepository, vehicleUseCase)
 	entranceExitHandler := http_handler.NewEntranceExitHandler(entranceExitUseCase)
 	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler, entranceExitHandler)
 	return app, nil
@@ -39,7 +39,7 @@ func InitializeMQTTApp(cfg *config.Config, db2 *gorm.DB) (*mqtt.MQTTClient, erro
 	entranceExitRepository := repository.NewEntranceExitRepository(db2)
 	vehicleRepository := repository.NewVehicleRepository(db2)
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
-	entranceExitUseCase := usecase.NewEntranceExitUseCase(entranceExitRepository, vehicleUseCase)
+	entranceExitUseCase := usecase.NewEntranceExitUseCase(cfg, entranceExitRepository, vehicleUseCase)
 	parkingSpotRepository := repository.NewParkingSpotRepository(db2)
 	parkingSpotUseCase := usecase.NewParkingSpotUseCase(parkingSpotRepository)
 	sensorHandler := mqtt_handler.NewSensorHandler(entranceExitUseCase, parkingSpotUseCase, vehicleUseCase)
