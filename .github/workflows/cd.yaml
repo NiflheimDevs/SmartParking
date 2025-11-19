@@ -47,7 +47,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "API/docker-compose.yml"
-          target: "/home/ubuntu/SmartParking"
+          target: "/home/ubuntu/SmartParking/docker-compose.yml"
 
       - name: Copy init.sql
         uses: appleboy/scp-action@v0.1.0
@@ -56,7 +56,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "API/BackEnd/internal/db/migration/init.sql"
-          target: "/home/ubuntu/SmartParking/migrations"
+          target: "/home/ubuntu/SmartParking/migrations/init.sql"
           
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.8
