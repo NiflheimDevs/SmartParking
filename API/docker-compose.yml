@@ -21,13 +21,13 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: parking
     volumes:
-      - ./BackEnd/internal/db/migration/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./migration/init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - pgdata:/var/lib/postgresql/data
   app:
     build:
       context: ./BackEnd
       dockerfile: dockerfile
-    image: ghcr.io/niflheimdevs/smartparking
+    image: ghcr.io/niflheimdevs/SmartParking
     container_name: application
     restart: unless-stopped
     depends_on:
