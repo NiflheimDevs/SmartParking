@@ -27,7 +27,7 @@ services:
     build:
       context: ./BackEnd
       dockerfile: dockerfile
-    image: ghcr.io/niflheimdevs/SmartParking
+    image: ghcr.io/niflheimdevs/smartparking
     container_name: application
     restart: unless-stopped
     depends_on:
