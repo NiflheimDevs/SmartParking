@@ -47,7 +47,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "API/docker-compose.yml"
-          target: "/home/ubuntu/SmartParking/docker-compose.yml"
+          target: "/home/ubuntu/SmartParking"
 
       - name: Copy init.sql
         uses: appleboy/scp-action@v0.1.0
@@ -56,7 +56,19 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "API/BackEnd/internal/db/migration/init.sql"
-          target: "/home/ubuntu/SmartParking/migrations/init.sql"
+          target: "/home/ubuntu/SmartParking/migration"
+      
+      - name: Make files path correct
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /home/ubuntu/SmartParking
+            move API/docker-compose.yml docker-compose.yml
+            move API/BackEnd/internal/db/migration/init.sql migration/init.sql
+            rm -rf API
           
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.8
