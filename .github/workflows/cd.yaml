@@ -40,6 +40,19 @@ jobs:
           docker compose build
           docker compose push
 
+      - name: Prepare remote folders
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            mkdir -p /home/ubuntu/SmartParking
+            mkdir -p /home/ubuntu/SmartParking/mosquitto/config
+            mkdir -p /home/ubuntu/SmartParking/mosquitto/data
+            mkdir -p /home/ubuntu/SmartParking/mosquitto/log
+            mkdir -p /home/ubuntu/SmartParking/migration
+
       - name: Copy docker-compose
         uses: appleboy/scp-action@v0.1.0
         with:
@@ -57,6 +70,15 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "API/BackEnd/internal/db/migration/init.sql"
           target: "/home/ubuntu/SmartParking/migration"
+
+      - name: Copy mosquitto config
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "API/mosquitto/config/mosquitto.conf"
+          target: "/home/ubuntu/SmartParking"
       
       - name: Make files path correct
         uses: appleboy/ssh-action@v0.1.8
@@ -68,6 +90,7 @@ jobs:
             cd /home/ubuntu/SmartParking
             mv API/docker-compose.yml docker-compose.yml
             mv API/BackEnd/internal/db/migration/init.sql migration/init.sql
+            mv API/mosquitto/config/mosquitto.conf mosquitto/config/mosquitto.conf
             rm -rf API
           
       - name: Deploy
