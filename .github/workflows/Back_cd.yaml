@@ -1,10 +1,11 @@
-name: CD
+name: Back_CD
 
 on:
   push:
     branches:
       - main
-      - Deploy
+    paths:
+      - "API/**"
 jobs:
   deploy:
     runs-on: ubuntu-latest    
