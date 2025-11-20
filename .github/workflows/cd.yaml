@@ -88,10 +88,10 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /home/ubuntu/SmartParking
-            sudo mv API/docker-compose.yml docker-compose.yml
-            sudo mv API/BackEnd/internal/db/migration/init.sql migration/init.sql
-            sudo mv API/mosquitto/config/mosquitto.conf mosquitto/config/mosquitto.conf
-            sudo rm -rf API
+            mv API/docker-compose.yml docker-compose.yml
+            mv API/BackEnd/internal/db/migration/init.sql migration/init.sql
+            mv API/mosquitto/config/mosquitto.conf mosquitto/config/mosquitto.conf
+            rm -rf API
           
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.8
