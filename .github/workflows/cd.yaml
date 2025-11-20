@@ -66,8 +66,8 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /home/ubuntu/SmartParking
-            move API/docker-compose.yml docker-compose.yml
-            move API/BackEnd/internal/db/migration/init.sql migration/init.sql
+            mv API/docker-compose.yml docker-compose.yml
+            mv API/BackEnd/internal/db/migration/init.sql migration/init.sql
             rm -rf API
           
       - name: Deploy
