@@ -27,17 +27,17 @@ void setupUltrasonic(int trigPin, int echoPin) {
     pinMode(echoPin_, INPUT);
 }
 
-float getDistance() {
-    digitalWrite(trigPin_, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin_, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin_, LOW);
+// float getDistance() {
+//     digitalWrite(trigPin_, LOW);
+//     delayMicroseconds(2);
+//     digitalWrite(trigPin_, HIGH);
+//     delayMicroseconds(10);
+//     digitalWrite(trigPin_, LOW);
 
-    long duration = pulseIn(echoPin_, HIGH);
-    float distance = duration * 0.034 / 2;
-    return distance;
-}
+//     long duration = pulseIn(echoPin_, HIGH);
+//     float distance = duration * 0.034 / 2;
+//     return distance;
+// }
 
 // Multi-sensor functions for parking system
 void setupAllUltrasonicSensors() {
