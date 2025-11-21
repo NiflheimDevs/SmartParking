@@ -12,11 +12,11 @@ interface Props {
   onDebug: (r: string) => void;
 }
 
-type Vehicle = {
-  plate: string;
-  rfid: string;
-  owner: string;
-};
+// type Vehicle = {
+//   plate: string;
+//   rfid: string;
+//   owner: string;
+// };
 
 const CrudForm = ({ action, onResult, onDebug }: Props) => {
   const [vehicleId, setVehicleId] = useState("");
