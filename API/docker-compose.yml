@@ -34,5 +34,8 @@ services:
       - postgres
     ports:
       - "8080:8080"
+    volumes:
+      - ./BackEnd/logs:/app/logs 
+
 volumes:
   pgdata:
