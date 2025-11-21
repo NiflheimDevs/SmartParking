@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+
+:root {
+  --accent: #00c6ff;
+  --accent-dark: #0072ff;
+  --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --text-main: #e2e8f0;
+  --text-subtle: #94a3b8;
+  --green: #34d399;
+  --red: #f87171;
+}
+
+body {
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+}
+
+.panel {
+  @apply rounded-xl border border-white/10 shadow-md transition;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+}
+@supports not (backdrop-filter: blur(12px)) {
+  .panel {
+    background: rgba(15, 23, 42, 0.95);
+  }
+}
+
+.text-accent {
+  color: var(--accent);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.border-accent {
+  border-color: var(--accent);
+}
+
+.input {
+  @apply w-full px-3 py-2 rounded-md text-sm text-slate-100;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+}
+
+.btn-accent {
+  @apply font-semibold py-2 px-4 rounded-md transition;
+  background: var(--accent);
+  color: #0f172a;
+}
+.btn-accent:hover {
+  background: var(--accent-dark);
+  box-shadow: 0 0 15px rgba(0, 198, 255, 0.4);
+}
