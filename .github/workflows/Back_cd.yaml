@@ -1,0 +1,84 @@
+name: Back_CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "API/**"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # - name: Write .env file
+      #   run: | 
+      #       echo "${{ secrets.ENV_FILE }}" > .env
+      
+      # - name: Write .pem files
+      #   run: |
+      #       mkdir ./internal/jwt
+      #       echo "${{ secrets.PRIVATEJWTKEY }}" > ./internal/jwt/privateKey.pem
+      #       echo "${{ secrets.PUBLICJWTKEY }}" > ./internal/jwt/publicKey.pem
+      #       mkdir ./SSL
+      #       echo "${{ secrets.SSLPRIVATEKEY }}" > ./SSL/privatekey.key
+      #       echo "${{ secrets.SSLCERT }}" > ./SSL/certificate.pem
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PAT }}
+      - name: Build and Push Docker Image
+        working-directory: API
+        run: |
+          docker compose build
+          docker compose push
+
+      - name: Copy docker-compose
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "API/docker-compose.yml"
+          target: "/home/ubuntu/SmartParking"
+
+      - name: Copy init.sql
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "API/BackEnd/internal/db/migration/init.sql"
+          target: "/home/ubuntu/SmartParking"
+
+      - name: Copy mosquitto config
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "API/mosquitto/config/mosquitto.conf"
+          target: "/home/ubuntu/SmartParking"
+          
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /home/ubuntu/SmartParking/API
+            
+            docker container prune
+            docker compose pull
+            docker compose down --remove-orphans
+            docker compose up -d
+            docker image prune -f
