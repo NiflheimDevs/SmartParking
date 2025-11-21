@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      dockerfile: dockerfile
+    image: ghcr.io/niflheimdevs/smartparking-frontend
+    container_name: Frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"

@@ -29,8 +29,17 @@ jobs:
       - name: Build and Push Frontend Docker Image
         working-directory: FrontEnd
         run: |
-          docker build -t ghcr.io/niflheimdevs/smartparking-frontend:latest .
-          docker push ghcr.io/niflheimdevs/smartparking-frontend:latest
+          docker compose build
+          docker compose push
+      
+      - name: Copy docker-compose
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "FrontEnd/docker-compose.yml"
+          target: "/home/ubuntu/SmartParking"
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.8
@@ -39,7 +48,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            cd /home/ubuntu/SmartParking/API
+            cd /home/ubuntu/SmartParking/FrontEnd
             docker compose pull
-            docker compose up -d --remove-orphans
+            docker compose down --remove-orphans
+            docker compose up -d
             docker image prune -f    

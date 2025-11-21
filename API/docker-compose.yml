@@ -28,21 +28,12 @@ services:
       context: ./BackEnd
       dockerfile: dockerfile
     image: ghcr.io/niflheimdevs/smartparking
-    container_name: application
+    container_name: Backend
     restart: unless-stopped
     depends_on:
       - postgres
     ports:
       - "8080:8080"
-  frontend:
-    build:
-      context: ../FrontEnd
-      dockerfile: dockerfile
-    image: ghcr.io/niflheimdevs/smartparking-frontend
-    container_name: frontend
-    restart: unless-stopped
-    ports:
-      - "3000:80"
       
 volumes:
   pgdata:
