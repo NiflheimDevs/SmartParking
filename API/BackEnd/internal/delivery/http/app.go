@@ -15,7 +15,7 @@ type App struct {
 }
 
 func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler) *App {
-	r := gin.Default()
+	r := gin.New()
 
 	r.Use(gin.LoggerWithWriter(logrus.StandardLogger().Writer()))
 	r.Use(gin.Recovery())
