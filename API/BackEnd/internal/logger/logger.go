@@ -5,10 +5,12 @@ import (
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/sirupsen/logrus"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-func SetupLogger() {
+func SetupLogger() *zap.Logger {
 	baseLogPath := "/app/logs/app"
 
 	writer, err := rotatelogs.New(
@@ -21,11 +23,22 @@ func SetupLogger() {
 		log.Fatalf("failed to create log rotator: %v", err)
 	}
 
-	logrus.SetOutput(writer)
-	logrus.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02 15:04:05",
-	})
+	writeSyncer := zapcore.AddSync(writer)
 
-	log.SetOutput(writer)
+	encoderCfg := zap.NewProductionEncoderConfig()
+	encoderCfg.TimeKey = "time"
+	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(encoderCfg),
+		writeSyncer,
+		zapcore.DebugLevel,
+	)
+
+	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+	zap.ReplaceGlobals(logger)
+	defer logger.Sync()
+
+	log.SetOutput(zap.NewStdLog(logger).Writer())
+	return logger
 }

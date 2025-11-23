@@ -4,7 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
-	"github.com/sirupsen/logrus"
+	"github.com/niflheimdevs/smartparking/internal/logger"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -15,9 +16,12 @@ type App struct {
 }
 
 func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler) *App {
-	r := gin.New()
+	logger := logger.SetupLogger()
 
-	r.Use(gin.LoggerWithWriter(logrus.StandardLogger().Writer()))
+	r := gin.Default()
+
+	gin.DefaultWriter = zap.NewStdLog(logger).Writer()
+	gin.DefaultErrorWriter = zap.NewStdLog(logger).Writer()
 	r.Use(gin.Recovery())
 
 	vehicle_api := r.Group("/v1/vehicles")

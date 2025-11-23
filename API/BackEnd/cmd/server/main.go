@@ -5,12 +5,9 @@ import (
 
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/di"
-	"github.com/niflheimdevs/smartparking/internal/logger"
 )
 
 func main() {
-	logger.SetupLogger()
-
 	http_app, err := di.InitializeHttpApp()
 	if err != nil {
 		log.Fatalf("failed to initialize app: %v", err)
