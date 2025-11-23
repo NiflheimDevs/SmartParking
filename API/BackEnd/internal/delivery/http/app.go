@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,10 @@ type App struct {
 func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler) *App {
 	r := gin.Default()
 
-	vehicle_api := r.Group("/api/v1/vehicles")
+	r.Use(gin.LoggerWithWriter(logrus.StandardLogger().Writer()))
+	r.Use(gin.Recovery())
+
+	vehicle_api := r.Group("/v1/vehicles")
 	{
 		vehicle_api.GET("/", vehicleHandler.List)
 		vehicle_api.GET("/:id", vehicleHandler.Info)
@@ -25,7 +29,7 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.Ve
 		vehicle_api.DELETE("/:id", vehicleHandler.Delete)
 	}
 
-	ee_api := r.Group("/api/v1/ee")
+	ee_api := r.Group("/v1/ee")
 	{
 		ee_api.GET("/", entranceexitHandler.List)
 		ee_api.GET("/:id", entranceexitHandler.Info)
