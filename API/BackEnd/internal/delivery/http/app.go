@@ -22,6 +22,8 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.Ve
 
 	gin.DefaultWriter = zap.NewStdLog(logger).Writer()
 	gin.DefaultErrorWriter = zap.NewStdLog(logger).Writer()
+	r.Use(gin.LoggerWithWriter(gin.DefaultWriter))
+	r.Use(gin.RecoveryWithWriter(gin.DefaultErrorWriter))
 	r.Use(gin.Recovery())
 
 	vehicle_api := r.Group("/v1/vehicles")
