@@ -3,21 +3,11 @@ package main
 import (
 	"log"
 
-	"gopkg.in/natefinch/lumberjack.v2"
-
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/di"
 )
 
 func main() {
-	log.SetOutput(&lumberjack.Logger{
-		Filename:   "/app/logs/app.log",
-		MaxSize:    100, // MB before size rotation
-		MaxAge:     1,   // days → **daily logs**
-		MaxBackups: 30,
-		Compress:   false,
-	})
-
 	http_app, err := di.InitializeHttpApp()
 	if err != nil {
 		log.Fatalf("failed to initialize app: %v", err)
