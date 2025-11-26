@@ -45,6 +45,14 @@ func (m *MQTTClient) Listen() {
 		}
 		log.Println("Exit detected (no handler):", string(msg.Payload()))
 	})
+
+	m.client.Subscribe("parking/space", 0, func(c mqtt.Client, msg mqtt.Message) {
+		if m.Handler != nil {
+			m.Handler.OnSpaceChange(c, msg)
+			return
+		}
+		log.Println("Space change detected (no handler):", string(msg.Payload()))
+	})
 }
 
 func (m *MQTTClient) Publish(topic string, qos byte, retained bool, payload interface{}) {

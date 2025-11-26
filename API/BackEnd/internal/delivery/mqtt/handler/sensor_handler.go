@@ -26,8 +26,13 @@ func NewSensorHandler(
 	}
 }
 
-type RequestPayload struct {
+type RFIDRequestPayload struct {
 	RFID string `json:"rfid"`
+}
+
+type SpaceRequestPayload struct {
+	SpaceNumber string `json:"space_number"`
+	IsOccupied  bool   `json:"is_occupied"`
 }
 
 type EnterResponsePayload struct {
@@ -44,7 +49,7 @@ type ExitRespnsePayload struct {
 }
 
 func (h *SensorHandler) OnEntrance(client mqtt.Client, msg mqtt.Message) {
-	var p RequestPayload
+	var p RFIDRequestPayload
 	topic := "parking/entrance/response"
 
 	if err := json.Unmarshal(msg.Payload(), &p); err != nil {
@@ -108,7 +113,7 @@ func (h *SensorHandler) OnEntrance(client mqtt.Client, msg mqtt.Message) {
 }
 
 func (h *SensorHandler) OnExit(client mqtt.Client, msg mqtt.Message) {
-	var p RequestPayload
+	var p RFIDRequestPayload
 	topic := "parking/exit/response"
 
 	if err := json.Unmarshal(msg.Payload(), &p); err != nil {
@@ -147,4 +152,27 @@ func (h *SensorHandler) OnExit(client mqtt.Client, msg mqtt.Message) {
 	if b, mErr := json.Marshal(resp); mErr == nil {
 		client.Publish(topic, 0, false, b)
 	}
+}
+
+func (h *SensorHandler) OnSpaceChange(client mqtt.Client, msg mqtt.Message) {
+	var p SpaceRequestPayload
+
+	if err := json.Unmarshal(msg.Payload(), &p); err != nil {
+		log.Printf("Can't Parse JSON")
+		return
+	}
+
+	spotID, err := h.ParkingSpotUseCase.Update(p.SpaceNumber, p.IsOccupied)
+	if err != nil {
+		log.Printf("There is a problem in update parking space %s status", p.SpaceNumber)
+		return
+	}
+
+	err = h.EntranceExitUseCase.ParkVehicle(spotID)
+	if err != nil {
+		log.Printf("There is a problem in update parking status of vehicle")
+		return
+	}
+
+	log.Printf("Parking Space %s updated succesfully", p.SpaceNumber)
 }

@@ -47,3 +47,8 @@ func (r *EntranceExitRepository) FindVehicleEnter(id uint) (domain.EntranceExit,
 func (r *EntranceExitRepository) Exit(ee domain.EntranceExit) error {
 	return r.db.Where("id = ?", ee.ID).Updates(ee).Error
 }
+
+func (r *EntranceExitRepository) ParkVehicle(spaceID uint) error {
+	var ee domain.EntranceExit
+	return r.db.Last(&ee).Where("spot_id = 0").UpdateColumn("spot_id", spaceID).Error
+}
