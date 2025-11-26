@@ -105,7 +105,7 @@ func (h *SensorHandler) OnEntrance(client mqtt.Client, msg mqtt.Message) {
 
 	log.Printf("ALL IS GOOD")
 	resp.Exist = true
-	resp.ParkingSpot = int(spot.ID)
+	resp.ParkingSpot = int(spot.ID - 1)
 	resp.Error = ""
 	if b, mErr := json.Marshal(resp); mErr == nil {
 		client.Publish(topic, 0, false, b)
@@ -165,12 +165,14 @@ func (h *SensorHandler) OnSpaceChange(client mqtt.Client, msg mqtt.Message) {
 	spotID, err := h.ParkingSpotUseCase.Update(p.SpaceNumber, p.IsOccupied)
 	if err != nil {
 		log.Printf("There is a problem in update parking space %s status", p.SpaceNumber)
+		log.Print(err.Error())
 		return
 	}
 
 	err = h.EntranceExitUseCase.ParkVehicle(spotID)
 	if err != nil {
 		log.Printf("There is a problem in update parking status of vehicle")
+		log.Print(err.Error())
 		return
 	}
 

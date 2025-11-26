@@ -23,18 +23,16 @@ func (r *ParkingSpotRepository) GetAll() ([]domain.ParkingSpot, error) {
 
 func (r *ParkingSpotRepository) FindFree() (domain.ParkingSpot, error) {
 	var spot domain.ParkingSpot
-	err := r.db.First(&spot).Where("is_occupied = false").Error
+	err := r.db.First(&spot).Where("is_occupied = false and spot_number != In the way").Error
 	return spot, err
 }
 
 func (r *ParkingSpotRepository) Get(number string) (domain.ParkingSpot, error) {
 	var spot domain.ParkingSpot
-	err := r.db.First(&spot, number).Error
+	err := r.db.First(&spot).Where("spot_number = ?", number).Error
 	return spot, err
 }
 
-func (r *ParkingSpotRepository) Update(number string, is_occupied bool) (uint, error) {
-	var spot domain.ParkingSpot
-	err := r.db.First(&spot).Where("spot_number = ?", number).UpdateColumn("is_occupied", is_occupied).Error
-	return spot.ID, err
+func (r *ParkingSpotRepository) Update(number string, is_occupied bool) error {
+	return r.db.Model(&domain.ParkingSpot{}).Where("spot_number = ?", number).UpdateColumn("is_occupied", is_occupied).Error
 }

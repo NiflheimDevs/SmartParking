@@ -54,6 +54,7 @@ func (uc *EntranceExitUseCase) Enter(id string) error {
 	}
 	ee := domain.EntranceExit{
 		VehicleID:    vehicle.ID,
+		SpotID:       1,
 		EntranceTime: time.Now(),
 	}
 	return uc.repo.Enter(ee)

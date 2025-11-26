@@ -34,7 +34,7 @@ func (r *EntranceExitRepository) VehicleLog(id uint) ([]domain.EntranceExit, err
 }
 
 func (r *EntranceExitRepository) Enter(ee domain.EntranceExit) error {
-	return r.db.Create(ee).Error
+	return r.db.Create(&ee).Error
 }
 
 // check that only one row exists
@@ -49,6 +49,5 @@ func (r *EntranceExitRepository) Exit(ee domain.EntranceExit) error {
 }
 
 func (r *EntranceExitRepository) ParkVehicle(spaceID uint) error {
-	var ee domain.EntranceExit
-	return r.db.Last(&ee).Where("spot_id = 0").UpdateColumn("spot_id", spaceID).Error
+	return r.db.Exec("UPDATE entrance_exits SET spot_id = ? WHERE id = (SELECT id FROM entrance_exits WHERE spot_id = 1 ORDER BY id DESC LIMIT 1)", spaceID).Error
 }

@@ -10,7 +10,7 @@ type ParkingSpotRepository interface {
 	GetAll() ([]domain.ParkingSpot, error)
 	FindFree() (domain.ParkingSpot, error)
 	Get(number string) (domain.ParkingSpot, error)
-	Update(number string, is_occupied bool) (uint, error)
+	Update(number string, is_occupied bool) error
 }
 
 type ParkingSpotUseCase struct {
@@ -39,6 +39,6 @@ func (uc *ParkingSpotUseCase) Update(number string, is_occupied bool) (uint, err
 	if space.IsOccupied == is_occupied {
 		return 0, errors.New("Status not changed")
 	}
-	spotID, err := uc.repo.Update(number, is_occupied)
-	return spotID, err
+	err = uc.repo.Update(number, is_occupied)
+	return space.ID, err
 }
