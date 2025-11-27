@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"log"
 	"time"
 
 	"github.com/niflheimdevs/smartparking/internal/domain"
@@ -52,6 +51,5 @@ func (r *EntranceExitRepository) Exit(ee domain.EntranceExit) error {
 }
 
 func (r *EntranceExitRepository) ParkVehicle(spaceID uint) error {
-	log.Print(spaceID)
 	return r.db.Exec("UPDATE entrance_exits SET spot_id = ? WHERE id = (SELECT id FROM entrance_exits WHERE spot_id = 1 ORDER BY id DESC LIMIT 1)", spaceID).Error
 }

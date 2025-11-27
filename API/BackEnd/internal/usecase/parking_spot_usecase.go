@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"log"
 
 	"github.com/niflheimdevs/smartparking/internal/domain"
 )
@@ -41,7 +40,6 @@ func (uc *ParkingSpotUseCase) Update(number string, is_occupied bool) (uint, err
 	if space.IsOccupied == is_occupied {
 		return 0, errors.New("Status not changed")
 	}
-	log.Print(space.ID, " ", space.SpotNumber)
 	err = uc.repo.Update(number, is_occupied)
 	return space.ID, err
 }
