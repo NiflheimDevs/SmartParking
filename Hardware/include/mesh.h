@@ -15,17 +15,17 @@ extern bool isRoot;
 extern int myRSSI;
 extern int otherRSSI;
 
-// Node-specific send functions
+// API for node types
 void mesh_send_parking();
 void mesh_send_rfid(String uid);
 
-// Root → server forwarder
+// Root → server
 void forward_to_server(JSONVar obj);
 
-// Receiver (parking/gate specific)
+// Parking/Gate incoming handler
 void mesh_handle_received(JSONVar obj);
 
-// Core
+// Init / Loop
 void mesh_init();
 void mesh_update();
 
@@ -38,6 +38,7 @@ void mesh_update();
 // #define MESH_H
 
 // #include <Arduino.h>
+// #include <WiFi.h> 
 // #include "esp_mesh.h"
 // #include "esp_wifi.h"
 // #include "esp_event.h"
