@@ -25,7 +25,8 @@ func NewParkingSpotUseCase(repo ParkingSpotRepository) *ParkingSpotUseCase {
 }
 
 func (uc *ParkingSpotUseCase) List() ([]domain.ParkingSpot, error) {
-	return uc.repo.GetAll()
+	pss, err := uc.repo.GetAll()
+	return pss[1:], err
 }
 
 func (uc *ParkingSpotUseCase) FindFree() (domain.ParkingSpot, error) {

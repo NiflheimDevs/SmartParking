@@ -17,7 +17,7 @@ func NewParkingSpotRepository(db *gorm.DB) *ParkingSpotRepository {
 
 func (r *ParkingSpotRepository) GetAll() ([]domain.ParkingSpot, error) {
 	var spots []domain.ParkingSpot
-	err := r.db.Find(&spots).Error
+	err := r.db.Order("id ASC").Find(&spots).Error
 	return spots, err
 }
 

@@ -13,7 +13,7 @@ type App struct {
 	DB     *gorm.DB
 }
 
-func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler) *App {
+func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler, parkingspotHandler *http_handler.ParkingSpotHandler) *App {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 
@@ -31,6 +31,11 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.Ve
 		ee_api.GET("/", entranceexitHandler.List)
 		ee_api.GET("/:id", entranceexitHandler.Info)
 		ee_api.GET("/vehicle/:id", entranceexitHandler.VehicleLog)
+	}
+
+	ps_api := r.Group("/v1/ps")
+	{
+		ps_api.GET("/", parkingspotHandler.GetStatus)
 	}
 
 	return &App{
