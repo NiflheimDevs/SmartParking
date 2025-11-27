@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: "http://api.smartparking.niflheimdevs.ir:8080/v1",
+  baseURL: "https://api.smartparking.niflheimdevs.ir/v1",
   headers: {
     "Content-Type": "application/json",
   },
