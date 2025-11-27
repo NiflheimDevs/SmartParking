@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - MQTT/Sensor
     paths:
       - "API/**"
 jobs:
