@@ -1,6 +1,9 @@
 package repository
 
 import (
+	"log"
+	"time"
+
 	"github.com/niflheimdevs/smartparking/internal/domain"
 	"gorm.io/gorm"
 )
@@ -40,7 +43,7 @@ func (r *EntranceExitRepository) Enter(ee domain.EntranceExit) error {
 // check that only one row exists
 func (r *EntranceExitRepository) FindVehicleEnter(id uint) (domain.EntranceExit, error) {
 	var ee domain.EntranceExit
-	err := r.db.Where("vehicle_id = ? and exit_time = null", id).First(&ee).Error
+	err := r.db.Where("vehicle_id = ? and exit_time = ?", id, time.Time{}).First(&ee).Error
 	return ee, err
 }
 
@@ -49,5 +52,6 @@ func (r *EntranceExitRepository) Exit(ee domain.EntranceExit) error {
 }
 
 func (r *EntranceExitRepository) ParkVehicle(spaceID uint) error {
+	log.Print(spaceID)
 	return r.db.Exec("UPDATE entrance_exits SET spot_id = ? WHERE id = (SELECT id FROM entrance_exits WHERE spot_id = 1 ORDER BY id DESC LIMIT 1)", spaceID).Error
 }

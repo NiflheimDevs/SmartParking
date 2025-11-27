@@ -169,11 +169,13 @@ func (h *SensorHandler) OnSpaceChange(client mqtt.Client, msg mqtt.Message) {
 		return
 	}
 
-	err = h.EntranceExitUseCase.ParkVehicle(spotID)
-	if err != nil {
-		log.Printf("There is a problem in update parking status of vehicle")
-		log.Print(err.Error())
-		return
+	if p.IsOccupied == true {
+		err = h.EntranceExitUseCase.ParkVehicle(spotID)
+		if err != nil {
+			log.Printf("There is a problem in update parking status of vehicle")
+			log.Print(err.Error())
+			return
+		}
 	}
 
 	log.Printf("Parking Space %s updated succesfully", p.SpaceNumber)

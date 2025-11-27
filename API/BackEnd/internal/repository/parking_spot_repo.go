@@ -23,13 +23,13 @@ func (r *ParkingSpotRepository) GetAll() ([]domain.ParkingSpot, error) {
 
 func (r *ParkingSpotRepository) FindFree() (domain.ParkingSpot, error) {
 	var spot domain.ParkingSpot
-	err := r.db.First(&spot).Where("is_occupied = false and spot_number != In the way").Error
+	err := r.db.Where("is_occupied = false and spot_number != ?", "In the way").First(&spot).Error
 	return spot, err
 }
 
 func (r *ParkingSpotRepository) Get(number string) (domain.ParkingSpot, error) {
 	var spot domain.ParkingSpot
-	err := r.db.First(&spot).Where("spot_number = ?", number).Error
+	err := r.db.Where("spot_number = ?", number).First(&spot).Error
 	return spot, err
 }
 
