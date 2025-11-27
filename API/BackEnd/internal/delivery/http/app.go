@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
@@ -16,6 +17,12 @@ type App struct {
 func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler, parkingspotHandler *http_handler.ParkingSpotHandler) *App {
 	r := gin.Default()
 	r.Use(gin.Recovery())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // or your frontend URL
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	vehicle_api := r.Group("/v1/vehicles")
 	{
