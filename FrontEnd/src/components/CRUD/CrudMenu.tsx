@@ -10,7 +10,7 @@ const CrudMenu = ({ action, onSelect }: Props) => {
       {actions.map((a) => (
         <button
           key={a}
-          onClick={() => onSelect(a as "create" | "read" | "update" | "delete")}
+          onClick={() => onSelect(a as any)}
           className={`px-3 py-2 rounded-md text-left capitalize transition ${
             action === a
               ? "bg-cyan-400 text-slate-900 font-semibold"

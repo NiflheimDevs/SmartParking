@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createVehicle,
   getVehicle,
@@ -10,51 +10,102 @@ interface Props {
   action: "create" | "read" | "update" | "delete";
   onResult: (r: any) => void;
   onDebug: (r: string) => void;
+  openDeleteModal: (id: string | number) => void;
 }
 
-// type Vehicle = {
-//   plate: string;
-//   rfid: string;
-//   owner: string;
-// };
-
-const CrudForm = ({ action, onResult, onDebug }: Props) => {
+const CrudForm = ({ action, onResult, onDebug, openDeleteModal }: Props) => {
   const [vehicleId, setVehicleId] = useState("");
+
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerContact, setOwnerContact] = useState("");
   const [plate, setPlate] = useState("");
   const [rfid, setRfid] = useState("");
-  const [owner, setOwner] = useState("");
+  const [vehicleType, setVehicleType] = useState("");
+
   const [loading, setLoading] = useState(false);
+
+  const resetFields = () => {
+    setOwnerName("");
+    setOwnerContact("");
+    setPlate("");
+    setRfid("");
+    setVehicleType("");
+  };
+
+  // LISTEN FOR GLOBAL DELETE CONFIRM
+  useEffect(() => {
+    const handler = async (e: any) => {
+      const id = e.detail.id;
+      setLoading(true);
+
+      try {
+        const res = await deleteVehicle(id);
+        onResult(res);
+        onDebug(JSON.stringify(res, null, 2));
+      } catch (err: any) {
+        const msg = err.response?.data || err.message;
+        onDebug("Error: " + JSON.stringify(msg, null, 2));
+      }
+
+      setLoading(false);
+    };
+
+    document.addEventListener("confirmDeleteVehicle", handler);
+    return () => document.removeEventListener("confirmDeleteVehicle", handler);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       let res;
+
       if (action === "create") {
-        res = await createVehicle({ plate, rfid, owner });
-        // Reset form after successful create
-        setPlate("");
-        setRfid("");
-        setOwner("");
-      } else if (action === "read") {
-        res = await getVehicle(vehicleId);
-      } else if (action === "update") {
-        res = await updateVehicle(vehicleId, { plate, rfid, owner });
-      } else if (action === "delete") {
-        if (!confirm("Delete this vehicle?")) return;
-        res = await deleteVehicle(vehicleId);
+        res = await createVehicle({
+          owner_name: ownerName,
+          owner_contact: ownerContact,
+          plate,
+          rfid_id: rfid,
+          vehicle_type: vehicleType,
+        });
+
+        resetFields();
       }
-      onResult(res?.data);
-      onDebug(JSON.stringify(res?.data, null, 2));
+
+      else if (action === "read") {
+        res = await getVehicle(vehicleId);
+      }
+
+      else if (action === "update") {
+        res = await updateVehicle(vehicleId, {
+          owner_name: ownerName,
+          owner_contact: ownerContact,
+          plate,
+          rfid_id: rfid,
+          vehicle_type: vehicleType,
+        });
+      }
+
+      else if (action === "delete") {
+        openDeleteModal(vehicleId);
+        setLoading(false);
+        return;
+      }
+
+      onResult(res);
+      onDebug(JSON.stringify(res, null, 2));
     } catch (err: any) {
-      onDebug("Error: " + err.message);
-    } finally {
-      setLoading(false);
+      const msg = err.response?.data || err.message;
+      onDebug("Error: " + JSON.stringify(msg, null, 2));
     }
+
+    setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      
       <h3 className="text-cyan-400 font-semibold mb-2 capitalize">
         {action} Vehicle
       </h3>
@@ -69,8 +120,27 @@ const CrudForm = ({ action, onResult, onDebug }: Props) => {
           required
         />
       )}
+
       {(action === "create" || action === "update") && (
         <>
+          <input
+            type="text"
+            placeholder="Owner Name"
+            value={ownerName}
+            onChange={(e) => setOwnerName(e.target.value)}
+            className="input"
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Owner Contact"
+            value={ownerContact}
+            onChange={(e) => setOwnerContact(e.target.value)}
+            className="input"
+            required
+          />
+
           <input
             type="text"
             placeholder="License Plate"
@@ -79,6 +149,7 @@ const CrudForm = ({ action, onResult, onDebug }: Props) => {
             className="input"
             required
           />
+
           <input
             type="text"
             placeholder="RFID Tag"
@@ -87,22 +158,24 @@ const CrudForm = ({ action, onResult, onDebug }: Props) => {
             className="input"
             required
           />
+
           <input
             type="text"
-            placeholder="Owner Name"
-            value={owner}
-            onChange={(e) => setOwner(e.target.value)}
+            placeholder="Vehicle Type"
+            value={vehicleType}
+            onChange={(e) => setVehicleType(e.target.value)}
             className="input"
             required
           />
         </>
       )}
+
       <button
         type="submit"
         disabled={loading}
-        className="btn-accent mt-2 disabled:opacity-50"
+        className="btn-accent mt-3 disabled:opacity-50"
       >
-        {loading ? "Loading..." : "Submit"}
+        {loading ? "..." : "Submit"}
       </button>
     </form>
   );

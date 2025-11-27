@@ -1,14 +1,23 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000";
-
-const apiClient = axios.create({
-  baseURL: BASE_URL,
+export const apiClient = axios.create({
+  baseURL: "http://api.smartparking.niflheimdevs.ir:8080/v1",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+export interface VehiclePayload {
+  owner_name: string;
+  owner_contact: string;
+  plate: string;
+  rfid_id: string;
+  vehicle_type: string;
+}
+
+// =====================================================
+// GET ALL VEHICLES
+// =====================================================
 export const getAllVehicles = async () => {
   try {
     const response = await apiClient.get("/vehicles");
@@ -18,7 +27,9 @@ export const getAllVehicles = async () => {
   }
 };
 
-
+// =====================================================
+// GET SPECIFIC VEHICLE
+// =====================================================
 export const getVehicle = async (id: string | number) => {
   try {
     const response = await apiClient.get(`/vehicles/${id}`);
@@ -28,7 +39,10 @@ export const getVehicle = async (id: string | number) => {
   }
 };
 
-export const createVehicle = async (vehicleData: any) => {
+// =====================================================
+// CREATE VEHICLE
+// =====================================================
+export const createVehicle = async (vehicleData: VehiclePayload) => {
   try {
     const response = await apiClient.post("/vehicles", vehicleData);
     return response.data;
@@ -37,7 +51,10 @@ export const createVehicle = async (vehicleData: any) => {
   }
 };
 
-export const updateVehicle = async (id: string | number, vehicleData: any) => {
+// =====================================================
+// UPDATE VEHICLE
+// =====================================================
+export const updateVehicle = async (id: string | number, vehicleData: VehiclePayload) => {
   try {
     const response = await apiClient.put(`/vehicles/${id}`, vehicleData);
     return response.data;
@@ -46,7 +63,9 @@ export const updateVehicle = async (id: string | number, vehicleData: any) => {
   }
 };
 
-
+// =====================================================
+// DELETE VEHICLE
+// =====================================================
 export const deleteVehicle = async (id: string | number) => {
   try {
     const response = await apiClient.delete(`/vehicles/${id}`);
