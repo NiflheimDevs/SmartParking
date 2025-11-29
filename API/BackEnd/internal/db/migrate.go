@@ -14,10 +14,14 @@ func seedParkingSpot(db *gorm.DB) {
 
 	if count == 0 {
 		log.Println("🚗 Seeding 7 parking spots...")
-		spots := make([]domain.ParkingSpot, 7)
-		for i := 0; i < 7; i++ {
+		spots := make([]domain.ParkingSpot, 8)
+		spots[0] = domain.ParkingSpot{
+			SpotNumber: "In the way",
+			IsOccupied: false,
+		}
+		for i := 1; i < 8; i++ {
 			spots[i] = domain.ParkingSpot{
-				SpotNumber: fmt.Sprintf("P%d", i+1),
+				SpotNumber: fmt.Sprintf("P%d", i),
 				IsOccupied: false,
 			}
 		}
