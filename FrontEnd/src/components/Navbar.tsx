@@ -8,6 +8,7 @@ const Navbar = ({ active, onChange }: Props) => {
     { id: "crud", label: "CRUD" },
     { id: "search", label: "Vehicle Search" },
     { id: "schematic", label: "Schematic" },
+    { id: "logs", label: "Entrance / Exit" },
   ];
 
   return (

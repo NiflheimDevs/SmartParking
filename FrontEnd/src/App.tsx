@@ -3,9 +3,11 @@ import Navbar from "./components/Navbar";
 import CrudPanel from "./components/CRUD/CrudPanel";
 import VehicleSearch from "./components/VehicleSearch";
 import Schematic from "./components/Schematic";
+import EntranceExitPanel from "./components/EntranceExitPanel";
+
 
 function App() {
-  type Tab = "crud" | "search" | "schematic";
+  type Tab = "crud" | "search" | "schematic" | "logs";
   const [activeTab, setActiveTab] = useState<Tab>("crud");
 
   return (
@@ -15,6 +17,7 @@ function App() {
         {activeTab === "crud" && <CrudPanel />}
         {activeTab === "search" && <VehicleSearch />}
         {activeTab === "schematic" && <Schematic />}
+        {activeTab === "logs" && <EntranceExitPanel />}
       </div>
     </div>
   );
