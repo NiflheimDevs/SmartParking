@@ -10,9 +10,10 @@ import (
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
-	"github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
 	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
-	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
+	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
+	"github.com/niflheimdevs/smartparking/internal/middleware"
 	"github.com/niflheimdevs/smartparking/internal/repository"
 	"github.com/niflheimdevs/smartparking/internal/usecase"
 	"gorm.io/gorm"
@@ -32,7 +33,14 @@ func InitializeHttpApp() (*http.App, error) {
 	parkingSpotRepository := repository.NewParkingSpotRepository(gormDB)
 	parkingSpotUseCase := usecase.NewParkingSpotUseCase(parkingSpotRepository)
 	parkingSpotHandler := http_handler.NewParkingSpotHandler(parkingSpotUseCase)
-	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler, entranceExitHandler, parkingSpotHandler)
+	userRepository := repository.NewUserRepository(gormDB)
+	jwt := usecase.NewJWT(configConfig)
+	userUseCase := usecase.NewUserUseCase(userRepository, jwt)
+	userHandler := http_handler.NewUserHandler(userUseCase)
+	handlers := http.NewHandlers(vehicleHandler, entranceExitHandler, parkingSpotHandler, userHandler)
+	jwtMiddleware := middleware.NewJWTMiddleware(jwt)
+	middlewares := http.NewMiddlewares(jwtMiddleware)
+	app := http.NewHttpApp(configConfig, gormDB, handlers, middlewares)
 	return app, nil
 }
 

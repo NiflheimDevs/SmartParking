@@ -41,6 +41,7 @@ func Migrate(db *gorm.DB) {
 		&domain.Vehicle{},
 		&domain.ParkingSpot{},
 		&domain.EntranceExit{},
+		&domain.User{},
 	)
 	seedParkingSpot(db)
 }

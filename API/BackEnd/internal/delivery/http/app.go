@@ -5,8 +5,42 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	"github.com/niflheimdevs/smartparking/internal/middleware"
 	"gorm.io/gorm"
 )
+
+type Handlers struct {
+	Vehicle      *http_handler.VehicleHandler
+	EntranceExit *http_handler.EntranceExitHandler
+	ParkingSpot  *http_handler.ParkingSpotHandler
+	User         *http_handler.UserHandler
+}
+
+type Middlewares struct {
+	JWT *middleware.JWTMiddleware
+}
+
+func NewHandlers(
+	v *http_handler.VehicleHandler,
+	ee *http_handler.EntranceExitHandler,
+	ps *http_handler.ParkingSpotHandler,
+	u *http_handler.UserHandler,
+) *Handlers {
+	return &Handlers{
+		Vehicle:      v,
+		EntranceExit: ee,
+		ParkingSpot:  ps,
+		User:         u,
+	}
+}
+
+func NewMiddlewares(
+	jwt *middleware.JWTMiddleware,
+) *Middlewares {
+	return &Middlewares{
+		JWT: jwt,
+	}
+}
 
 type App struct {
 	Router *gin.Engine
@@ -14,7 +48,7 @@ type App struct {
 	DB     *gorm.DB
 }
 
-func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.VehicleHandler, entranceexitHandler *http_handler.EntranceExitHandler, parkingspotHandler *http_handler.ParkingSpotHandler) *App {
+func NewHttpApp(cfg *config.Config, db *gorm.DB, handlers *Handlers, middlewares *Middlewares) *App {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(cors.New(cors.Config{
@@ -24,25 +58,35 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, vehicleHandler *http_handler.Ve
 		AllowCredentials: true,
 	}))
 
-	vehicle_api := r.Group("/v1/vehicles")
+	protected := r.Group("/v1")
+	protected.Use(middlewares.JWT.Validate())
 	{
-		vehicle_api.GET("/", vehicleHandler.List)
-		vehicle_api.GET("/:id", vehicleHandler.Info)
-		vehicle_api.POST("/", vehicleHandler.Register)
-		vehicle_api.PUT("/:id", vehicleHandler.Update)
-		vehicle_api.DELETE("/:id", vehicleHandler.Delete)
+		vehicle_api := protected.Group("/vehicles")
+		{
+			vehicle_api.GET("/", handlers.Vehicle.List)
+			vehicle_api.GET("/:id", handlers.Vehicle.Info)
+			vehicle_api.POST("/", handlers.Vehicle.Register)
+			vehicle_api.PUT("/:id", handlers.Vehicle.Update)
+			vehicle_api.DELETE("/:id", handlers.Vehicle.Delete)
+		}
+
+		ee_api := protected.Group("/ee")
+		{
+			ee_api.GET("/", handlers.EntranceExit.List)
+			ee_api.GET("/:id", handlers.EntranceExit.Info)
+			ee_api.GET("/vehicle/:id", handlers.EntranceExit.VehicleLog)
+		}
+
+		ps_api := protected.Group("/ps")
+		{
+			ps_api.GET("/", handlers.ParkingSpot.GetStatus)
+		}
 	}
 
-	ee_api := r.Group("/v1/ee")
+	u_api := r.Group("/v1")
 	{
-		ee_api.GET("/", entranceexitHandler.List)
-		ee_api.GET("/:id", entranceexitHandler.Info)
-		ee_api.GET("/vehicle/:id", entranceexitHandler.VehicleLog)
-	}
-
-	ps_api := r.Group("/v1/ps")
-	{
-		ps_api.GET("/", parkingspotHandler.GetStatus)
+		u_api.POST("/signup", handlers.User.Signup)
+		u_api.POST("/login", handlers.User.Login)
 	}
 
 	return &App{

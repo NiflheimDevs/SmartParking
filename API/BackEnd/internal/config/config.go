@@ -17,6 +17,7 @@ type Config struct {
 	}
 	Constant struct {
 		PricePerHour int64
+		JWTKeysPath  string
 	}
 }
 
@@ -29,6 +30,7 @@ func Load() *Config {
 	cfg.MQTT.ClientID = getEnv("MQTT_CLIENT_ID", "smart-parking-server")
 
 	cfg.Constant.PricePerHour = 500000
+	cfg.Constant.JWTKeysPath = "./internal/jwt"
 	return cfg
 }
 
