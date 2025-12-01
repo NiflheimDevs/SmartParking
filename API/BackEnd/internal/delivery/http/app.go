@@ -59,7 +59,7 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, handlers *Handlers, middlewares
 	}))
 
 	protected := r.Group("/v1")
-	protected.Use(middlewares.JWT.Validate())
+	//protected.Use(middlewares.JWT.Validate())
 	{
 		vehicle_api := protected.Group("/vehicles")
 		{
