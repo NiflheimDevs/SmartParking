@@ -20,7 +20,7 @@ export interface VehiclePayload {
 // =====================================================
 export const getAllVehicles = async () => {
   try {
-    const response = await apiClient.get("/vehicles");
+    const response = await apiClient.get("/vehicles/");
     return response.data;
   } catch (error: any) {
     throw error.response?.data || "خطا در دریافت لیست وسایل نقلیه!";
@@ -44,7 +44,7 @@ export const getVehicle = async (id: string | number) => {
 // =====================================================
 export const createVehicle = async (vehicleData: VehiclePayload) => {
   try {
-    const response = await apiClient.post("/vehicles", vehicleData);
+    const response = await apiClient.post("/vehicles/", vehicleData);
     return response.data;
   } catch (error: any) {
     throw error.response?.data || "خطا در ثبت وسیله نقلیه جدید!";
