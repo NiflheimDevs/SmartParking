@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"math"
 	"time"
 
 	"github.com/niflheimdevs/smartparking/internal/config"
@@ -73,7 +74,9 @@ func (uc *EntranceExitUseCase) Exit(id string) (int64, error) {
 
 	log.ExitTime = time.Now()
 
-	price := log.ExitTime.Sub(log.EntranceTime).Hours() * float64(uc.cfg.Constant.PricePerHour)
+	price := int64(math.Ceil(log.ExitTime.Sub(log.EntranceTime).Hours())) * uc.cfg.Constant.PricePerHour
+
+	log.Price = price
 
 	err = uc.repo.Exit(log)
 
