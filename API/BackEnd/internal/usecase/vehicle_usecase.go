@@ -9,11 +9,11 @@ import (
 type VehicleRepository interface {
 	Create(v *domain.Vehicle) error
 	GetAll() ([]domain.Vehicle, error)
-	GetInfo(id uint) (domain.Vehicle, error)
+	GetInfo(id uint) (*domain.Vehicle, error)
 	Update(id uint, v *domain.Vehicle) error
 	Delete(id uint) error
 	CheckRFID(id string) (bool, error)
-	VehicleInfoRFID(id string) (domain.Vehicle, error)
+	VehicleInfoRFID(id string) (*domain.Vehicle, error)
 }
 
 type VehicleUseCase struct {
@@ -44,7 +44,7 @@ func (uc *VehicleUseCase) UpdateVehicle(id uint, v *domain.Vehicle) error {
 	return uc.repo.Update(id, v)
 }
 
-func (uc *VehicleUseCase) VehicleInfo(id uint) (domain.Vehicle, error) {
+func (uc *VehicleUseCase) VehicleInfo(id uint) (*domain.Vehicle, error) {
 	return uc.repo.GetInfo(id)
 }
 
@@ -56,6 +56,6 @@ func (uc *VehicleUseCase) CheckRFID(id string) (bool, error) {
 	return uc.repo.CheckRFID(id)
 }
 
-func (uc *VehicleUseCase) VehicleInfoRFID(id string) (domain.Vehicle, error) {
+func (uc *VehicleUseCase) VehicleInfoRFID(id string) (*domain.Vehicle, error) {
 	return uc.repo.VehicleInfoRFID(id)
 }

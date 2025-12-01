@@ -8,8 +8,8 @@ import (
 
 type ParkingSpotRepository interface {
 	GetAll() ([]domain.ParkingSpot, error)
-	FindFree() (domain.ParkingSpot, error)
-	Get(number string) (domain.ParkingSpot, error)
+	FindFree() (*domain.ParkingSpot, error)
+	Get(number string) (*domain.ParkingSpot, error)
 	Update(number string, is_occupied bool) error
 }
 
@@ -28,7 +28,7 @@ func (uc *ParkingSpotUseCase) List() ([]domain.ParkingSpot, error) {
 	return pss[1:], err
 }
 
-func (uc *ParkingSpotUseCase) FindFree() (domain.ParkingSpot, error) {
+func (uc *ParkingSpotUseCase) FindFree() (*domain.ParkingSpot, error) {
 	return uc.repo.FindFree()
 }
 

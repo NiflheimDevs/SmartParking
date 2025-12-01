@@ -10,11 +10,11 @@ import (
 
 type EntranceExitRepository interface {
 	GetAll() ([]domain.EntranceExit, error)
-	Info(id uint) (domain.EntranceExit, error)
+	Info(id uint) (*domain.EntranceExit, error)
 	VehicleLog(id uint) ([]domain.EntranceExit, error)
-	Enter(ee domain.EntranceExit) error
-	FindVehicleEnter(id uint) (domain.EntranceExit, error)
-	Exit(ee domain.EntranceExit) error
+	Enter(ee *domain.EntranceExit) error
+	FindVehicleEnter(id uint) (*domain.EntranceExit, error)
+	Exit(ee *domain.EntranceExit) error
 	ParkVehicle(spaceID uint) error
 }
 
@@ -40,7 +40,7 @@ func (uc *EntranceExitUseCase) List() ([]domain.EntranceExit, error) {
 	return uc.repo.GetAll()
 }
 
-func (uc *EntranceExitUseCase) Info(id uint) (domain.EntranceExit, error) {
+func (uc *EntranceExitUseCase) Info(id uint) (*domain.EntranceExit, error) {
 	return uc.repo.Info(id)
 }
 
@@ -58,7 +58,7 @@ func (uc *EntranceExitUseCase) Enter(id string) error {
 		SpotID:       1,
 		EntranceTime: time.Now(),
 	}
-	return uc.repo.Enter(ee)
+	return uc.repo.Enter(&ee)
 }
 
 func (uc *EntranceExitUseCase) Exit(id string) (int64, error) {
