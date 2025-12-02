@@ -121,7 +121,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
             </div>
 
             <p className="text-center text-slate-400 mt-6 text-sm">
-              Press <kbd className="px-2 py-1 bg-slate-800 rounded mx-1">E</kbd> at the right moment
+              Press the key at the right moment
             </p>
           </div>
         </div>

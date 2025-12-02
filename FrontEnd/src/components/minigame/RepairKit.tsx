@@ -10,14 +10,20 @@ interface RepairKitProps {
 const RepairKit: React.FC<RepairKitProps> = ({ onWin, onLose }) => {
   const [position, setPosition] = useState(0);
   const [slotPosition] = useState(() => Math.floor(Math.random() * 76) + 15); // 15–90%
-  const [isGameOver, setIsGameOver] = useState(false); // ← single source of truth
+  const [currentKey, setCurrentKey] = useState('E'); // will be overridden on start
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const positionRef = useRef(0);
   const intervalRef = useRef<number | null>(null);
 
-  // One single place that ends the game
+  // Generate a random key: A–Z or 0–9
+  const generateRandomKey = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return chars[Math.floor(Math.random() * chars.length)];
+  };
+
   const endGame = (won: boolean) => {
-    if (isGameOver) return; // ← prevent double call
+    if (isGameOver) return;
     setIsGameOver(true);
 
     if (won) {
@@ -49,6 +55,7 @@ const RepairKit: React.FC<RepairKitProps> = ({ onWin, onLose }) => {
     positionRef.current = 0;
     setPosition(0);
     setIsGameOver(false);
+    setCurrentKey(generateRandomKey()); // ← new random key every game!
 
     if (intervalRef.current !== null) clearInterval(intervalRef.current);
     const speedMs = 10 + Math.random() * 10;
@@ -59,9 +66,11 @@ const RepairKit: React.FC<RepairKitProps> = ({ onWin, onLose }) => {
     startGame();
 
     const handleKey = (e: KeyboardEvent) => {
-      if ((e.key === 'e' || e.key === 'E') && !isGameOver) {
+      if (e.key.toUpperCase() === currentKey && !isGameOver) {
         e.preventDefault();
-        const won = positionRef.current >= slotPosition - 2 && positionRef.current <= slotPosition + 2;
+        const won =
+          positionRef.current >= slotPosition - 2 &&
+          positionRef.current <= slotPosition + 2;
         endGame(won);
       }
     };
@@ -69,25 +78,33 @@ const RepairKit: React.FC<RepairKitProps> = ({ onWin, onLose }) => {
     window.addEventListener('keydown', handleKey);
     return () => {
       window.removeEventListener('keydown', handleKey);
-      if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
     };
-  }, []);
+  }, [currentKey, isGameOver]); // re-attach listener when key changes
 
-  const buttonBg = isGameOver && positionRef.current <= slotPosition + 2 && positionRef.current >= slotPosition - 2
+  const buttonBg = isGameOver &&
+    positionRef.current >= slotPosition - 2 &&
+    positionRef.current <= slotPosition + 2
     ? 'from-emerald-500 to-emerald-700'
     : 'from-red-600 to-red-800';
 
   const squareBg = isGameOver
-    ? (positionRef.current >= slotPosition - 2 && positionRef.current <= slotPosition + 2
-        ? 'from-emerald-400 to-cyan-600 shadow-emerald-400/90'
-        : 'from-red-500 to-rose-700 shadow-red-500/90')
+    ? positionRef.current >= slotPosition - 2 && positionRef.current <= slotPosition + 2
+      ? 'from-emerald-400 to-cyan-600 shadow-emerald-400/90'
+      : 'from-red-500 to-rose-700 shadow-red-500/90'
     : 'from-cyan-400 to-teal-600 shadow-cyan-400/80';
 
   return (
     <div className="flex items-center gap-12 p-12 bg-gradient-to-r from-slate-950/90 to-cyan-950/40 rounded-3xl border-2 border-cyan-800/50 shadow-2xl select-none">
-      {/* E Button */}
-      <div className={`flex items-center justify-center w-28 h-28 rounded-2xl bg-gradient-to-br ${isGameOver ? buttonBg : 'from-emerald-500 to-emerald-700'} text-white text-6xl font-black shadow-2xl`}>
-        E
+      {/* Random Key Button */}
+      <div
+        className={`flex items-center justify-center w-28 h-28 rounded-2xl bg-gradient-to-br ${
+          isGameOver ? buttonBg : 'from-emerald-500 to-emerald-700'
+        } text-white text-6xl font-black shadow-2xl`}
+      >
+        {currentKey}
       </div>
 
       {/* Timeline */}
@@ -98,13 +115,22 @@ const RepairKit: React.FC<RepairKitProps> = ({ onWin, onLose }) => {
           style={{
             left: `${Math.min(position, 100)}%`,
             marginLeft: position <= 100 ? '-40px' : '0px',
-            transform: `translateY(-50%) scale(${isGameOver && positionRef.current >= slotPosition - 2 && positionRef.current <= slotPosition + 2 ? 1.5 : 1})`,
+            transform: `translateY(-50%) scale(${
+              isGameOver &&
+              positionRef.current >= slotPosition - 2 &&
+              positionRef.current <= slotPosition + 2
+                ? 1.5
+                : 1
+            })`,
           }}
         >
-          {isGameOver && (positionRef.current >= slotPosition - 2 && positionRef.current <= slotPosition + 2
-            ? <i className="fas fa-check text-4xl"></i>
-            : <i className="fas fa-xmark text-4xl"></i>
-          )}
+          {isGameOver &&
+            (positionRef.current >= slotPosition - 2 &&
+            positionRef.current <= slotPosition + 2 ? (
+              <i className="fas fa-check text-4xl"></i>
+            ) : (
+              <i className="fas fa-xmark text-4xl"></i>
+            ))}
         </div>
 
         {/* Success Slot */}
