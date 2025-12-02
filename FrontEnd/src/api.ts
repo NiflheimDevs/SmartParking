@@ -27,6 +27,21 @@ apiClient.interceptors.request.use(
   }
 );
 
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // Prevent infinite loops
+      localStorage.removeItem("authToken");
+      return Promise.reject({message: "Unauthorized. Please login again."});
+    }
+    return Promise.reject(error);
+  }
+);
+
 export interface VehiclePayload {
   owner_name: string;
   owner_contact: string;
