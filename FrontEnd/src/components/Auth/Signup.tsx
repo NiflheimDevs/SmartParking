@@ -34,7 +34,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
       }
       if (event.data?.type === "LOSE") {
         setShowMiniGame(false);
-        alert("You Sucks!!!");
+        alert("You Sucks Idiot!!!");
       }
     };
 

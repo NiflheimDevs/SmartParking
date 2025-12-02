@@ -5,6 +5,7 @@ on:
     branches:
     #   - main
     - Front/Hardware
+    - Front/Authenticate
     paths:
       - "FrontEnd/**"
 
