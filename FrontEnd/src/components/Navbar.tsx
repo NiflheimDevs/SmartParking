@@ -1,9 +1,10 @@
 interface Props {
   active: string;
-  onChange: (tab: "crud" | "search" | "schematic") => void;
+  onChange: (tab: "crud" | "search" | "schematic" | "logs") => void;
+  onLogout: () => void;
 }
 
-const Navbar = ({ active, onChange }: Props) => {
+const Navbar = ({ active, onChange, onLogout }: Props) => {
   const tabs = [
     { id: "crud", label: "CRUD" },
     { id: "search", label: "Vehicle Search" },
@@ -30,6 +31,13 @@ const Navbar = ({ active, onChange }: Props) => {
           {tab.label}
         </button>
       ))}
+
+      <button
+        onClick={onLogout}
+        className="ml-auto px-4 py-2 rounded-lg text-sm font-semibold text-red-400 hover:bg-red-500/20 transition-all"
+      >
+        Logout
+      </button>
     </nav>
   );
 };

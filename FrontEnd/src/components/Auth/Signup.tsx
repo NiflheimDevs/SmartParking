@@ -32,7 +32,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
 
   const handleLose = () => {
     setShowMiniGame(false);
-    alert("Hack failed! You let the system lock you out.");
+    alert("You Sucks Idiot");
   };
 
   const closeMinigame = () => {
