@@ -1,25 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { signup } from "../../api";
 
 export default function SignupPage({ switchToLogin }: { switchToLogin: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showMiniGame, setShowMiniGame] = useState(false);
 
-  const handleSignup = async () => {
-    try {
-      if (!username || !password) {
-        alert("Please enter both username and password");
-        return;
-      }
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-      await signup({ username, password });
-      switchToLogin();
-    } catch (err: any) {
-      console.error("Signup error:", err);
-      alert(err?.message || "Signup failed");
+  useEffect(() => {
+    if (showMiniGame && iframeRef.current) {
+      iframeRef.current.focus();
     }
+  }, [showMiniGame]);
+
+  const handleSignupClick = () => {
+    if (!username || !password) {
+      alert("Please enter both username and password");
+      return;
+    }
+    setShowMiniGame(true);
   };
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+
+      if (event.data?.type === "WIN") {
+        setShowMiniGame(false);
+        signup({ username, password })
+          .then(() => switchToLogin())
+          .catch((err: any) => alert(err?.message || "Signup failed"));
+      }
+      if (event.data?.type === "LOSE") {
+        setShowMiniGame(false);
+        alert("You Sucks!!!");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [username, password, switchToLogin]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -52,7 +73,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
             />
 
             <button
-              onClick={handleSignup}
+              onClick={handleSignupClick}
               className="w-full px-4 py-2 bg-accent text-slate-900 font-semibold rounded-xl hover:opacity-90 transition"
             >
               Sign Up
@@ -70,6 +91,18 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
           </p>
         </div>
       </motion.div>
+
+      {/* Mini-game iframe overlay */}
+      {showMiniGame && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+          <iframe
+            ref={iframeRef}
+            src="./src/minigame/RepairKit.html" // Path to your HTML mini-game
+            className="w-[900px] h-[300px] rounded-xl border-0"
+            tabIndex={0}
+          />
+        </div>
+      )}
     </div>
   );
 }

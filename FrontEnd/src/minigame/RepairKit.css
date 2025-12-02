@@ -1,0 +1,84 @@
+.hacking-container {
+    display: flex;
+    position: relative;
+    background: linear-gradient(to right, rgb(18, 19, 20), rgb(36, 68, 90));
+    padding: 20px;
+    border-radius: 10px;
+    width: 800px;
+    height: 200px;
+    margin: 40px auto; /* center horizontally with spacing from top */
+    justify-content: flex-start;
+    align-items: center;
+    overflow: hidden; /* prevent any child overflow */
+}
+
+.button-press {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    background: radial-gradient(circle, rgb(0, 183, 140), rgb(0, 81, 61));
+    font-size: 36px;
+    color: white;
+    flex-shrink: 0; /* prevent shrinking */
+    margin-right: 20px; /* spacing from timeline */
+}
+
+.timeline {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 600px;
+    height: 60px;
+    border-radius: 5px;
+    outline: 2px solid rgba(128, 128, 128, 0.2);
+    background-color: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0; /* prevent shrinking */
+}
+
+.moving-square {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    background: radial-gradient(circle, rgb(0, 255, 200), rgb(0, 174, 130));
+    box-shadow: 0 0 5px 0px rgb(16, 239, 191);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-left: 0; /* start at 0 */
+    transition: margin-left 0.03s linear, transform 0.2s ease-in-out;
+}
+
+.square-slot {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    outline: 1.5px solid rgba(128, 128, 128, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-left: 15%; /* randomized in JS */
+}
+
+.square-slot::before,
+.square-slot::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 3px;
+    background: var(--background-gradient);
+}
+
+.square-slot::before {
+    top: -2px;
+}
+
+.square-slot::after {
+    bottom: -2px;
+}
