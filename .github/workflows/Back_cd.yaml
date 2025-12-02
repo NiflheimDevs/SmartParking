@@ -19,9 +19,11 @@ jobs:
       #       echo "${{ secrets.ENV_FILE }}" > .env
       
       - name: Write .pem files
+        working-directory: API
         run: |
-            echo "${{ secrets.PRIVATEJWTKEY }}" > ./internal/jwt/private_key.pem
-            echo "${{ secrets.PUBLICJWTKEY }}" > ./internal/jwt/public_key.pem
+            mkdir -p ./BackEnd/internal/jwt
+            echo "${{ secrets.PRIVATEJWTKEY }}" > ./BackEnd/internal/jwt/private_key.pem
+            echo "${{ secrets.PUBLICJWTKEY }}" > ./BackEnd/internal/jwt/public_key.pem
         
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
