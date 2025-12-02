@@ -97,7 +97,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
           <iframe
             ref={iframeRef}
-            src="./src/minigame/RepairKit.html" // Path to your HTML mini-game
+            src="/minigame/RepairKit.html" // Path to your HTML mini-game
             className="w-[900px] h-[300px] rounded-xl border-0"
             tabIndex={0}
           />
