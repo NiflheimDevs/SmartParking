@@ -10,7 +10,7 @@ import (
 func main() {
 	http_app, err := di.InitializeHttpApp()
 	if err != nil {
-		log.Fatalf("failed to initialize app: %v ", err)
+		log.Fatalf("failed to initialize app: %v", err)
 	}
 
 	db.Migrate(http_app.DB)
