@@ -52,7 +52,7 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, handlers *Handlers, middlewares
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, // or your frontend URL
+		AllowOrigins:     []string{"smartparking.niflheimdevs.ir", "www.smartparking.niflheimdevs.ir", "localhost:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
