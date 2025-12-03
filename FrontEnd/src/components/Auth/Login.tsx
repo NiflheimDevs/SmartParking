@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { login } from "../../api";
+import Footer from "../Footer";
 
 export default function LoginPage({ switchToSignup }: { switchToSignup: () => void }) {
   const [username, setUsername] = useState("");
@@ -27,7 +28,7 @@ export default function LoginPage({ switchToSignup }: { switchToSignup: () => vo
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,6 +36,12 @@ export default function LoginPage({ switchToSignup }: { switchToSignup: () => vo
         className="w-full max-w-md"
       >
         <div className="bg-slate-900/70 backdrop-blur-xl border border-slate-800 shadow-2xl rounded-2xl p-8">
+          <img
+            src="/logo-transparent.png"
+            alt="Logo"
+            className="mx-auto mb-6 w-850 h-auto object-contain"
+          />
+
           <h2 className="text-2xl font-semibold text-accent mb-6 text-center">
             Welcome Back
           </h2>
@@ -75,6 +82,8 @@ export default function LoginPage({ switchToSignup }: { switchToSignup: () => vo
           </p>
         </div>
       </motion.div>
+
+      <Footer/>
     </div>
   );
 }

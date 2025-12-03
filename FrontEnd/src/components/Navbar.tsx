@@ -17,6 +17,14 @@ const Navbar = ({ active, onChange, onLogout }: Props) => {
       className="fixed top-0 left-0 right-0 h-14 flex items-center px-6 z-50
                 bg-slate-900/60 backdrop-blur-md border-b border-white/10 shadow-lg"
     >
+      <div className="mr-6 flex items-center">
+        <img
+          src="/logo-transparent.png"
+          alt="Logo"
+          className="h-10 w-auto object-contain"
+        />
+      </div>
+
       {tabs.map((tab) => (
         <button
           key={tab.id}

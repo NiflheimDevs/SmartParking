@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { signup } from "../../api";
 import RepairKit from "../minigame/RepairKit";
+import Footer from "../Footer";
 
 export default function SignupPage({ switchToLogin }: { switchToLogin: () => void }) {
   const [username, setUsername] = useState("");
@@ -42,7 +43,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -50,6 +51,12 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
         className="w-full max-w-md"
       >
         <div className="bg-slate-900/70 backdrop-blur-xl border border-slate-800 shadow-2xl rounded-2xl p-8">
+          <img
+            src="/logo-transparent.png"
+            alt="Logo"
+            className="mx-auto mb-6 w-850 h-auto object-contain"
+          />
+          
           <h2 className="text-2xl font-semibold text-accent mb-6 text-center">
             Create Your Account
           </h2>
@@ -93,6 +100,8 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
           </p>
         </div>
       </motion.div>
+
+      <Footer/>
 
       {/* Full React Minigame Overlay */}
       {showMiniGame && (

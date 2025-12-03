@@ -6,6 +6,7 @@ import Schematic from "./components/Schematic";
 import EntranceExitPanel from "./components/EntranceExitPanel";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
+import Footer from "./components/Footer";
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("authToken");
@@ -44,6 +45,7 @@ function App() {
         {activeTab === "schematic" && <Schematic />}
         {activeTab === "logs" && <EntranceExitPanel />}
       </div>
+      <Footer/>
     </div>
   );
 }
