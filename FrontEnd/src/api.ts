@@ -7,12 +7,52 @@ export const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("authToken");
+
+    const publicRoutes = [
+      "/login",
+      "/signup",
+    ];
+
+    if (token && !publicRoutes.includes(config.url || "")) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // Prevent infinite loops
+      localStorage.removeItem("authToken");
+      return Promise.reject({message: "Unauthorized. Please login again."});
+    }
+    return Promise.reject(error);
+  }
+);
+
 export interface VehiclePayload {
   owner_name: string;
   owner_contact: string;
   plate: string;
   rfid_id: string;
   vehicle_type: string;
+}
+
+export interface AuthPayload {
+  username: string;
+  password: string;
 }
 
 // =====================================================
@@ -114,5 +154,27 @@ export const getLogsByVehicle = async (vehicleId: number | string) => {
     return response.data;
   } catch (error: any) {
     throw error.response?.data || "خطا در دریافت لاگ‌های این وسیله نقلیه!";
+  }
+};
+
+export const login = async (data: AuthPayload) => {
+  try {
+    const response = await apiClient.post("/login",data);
+    const accessToken = response.data.token;
+    if (accessToken) {
+      localStorage.setItem("authToken",accessToken)
+    }
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || "خطا در ورود"
+  }
+};
+
+export const signup = async (data: AuthPayload) => {
+  try {
+    const response = await apiClient.post("/signup",data);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || "خطا در ثبت نام"
   }
 };
