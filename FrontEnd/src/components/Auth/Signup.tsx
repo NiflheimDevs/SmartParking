@@ -33,7 +33,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
 
   const handleLose = () => {
     setShowMiniGame(false);
-    alert("You Sucks Idiot");
+    alert("You Suck Idiot");
   };
 
   const closeMinigame = () => {
@@ -103,11 +103,9 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
 
       <Footer/>
 
-      {/* Full React Minigame Overlay */}
       {showMiniGame && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-8">
           <div className="relative max-w-4xl w-full">
-            {/* Close button */}
             <button
               onClick={closeMinigame}
               disabled={isSubmitting}
@@ -116,12 +114,10 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
               ×
             </button>
 
-            {/* Title */}
             <h3 className="text-center text-2xl font-bold text-cyan-400 mb-6 tracking-wider">
-              SYSTEM BREACH REQUIRED
+              RECAPTHA
             </h3>
 
-            {/* The actual React component */}
             <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-slate-950 p-8 rounded-2xl border-2 border-cyan-800/50 shadow-2xl">
               <RepairKit
                 onWin={handleWin}

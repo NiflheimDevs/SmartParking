@@ -168,7 +168,7 @@ export const login = async (data: AuthPayload) => {
   } catch (error: any) {
     throw error.response?.data || "خطا در ورود"
   }
-}
+};
 
 export const signup = async (data: AuthPayload) => {
   try {
@@ -177,4 +177,4 @@ export const signup = async (data: AuthPayload) => {
   } catch (error: any) {
     throw error.response?.data || "خطا در ثبت نام"
   }
-}
+};
