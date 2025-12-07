@@ -1,3 +1,4 @@
+name: Smartparking-Frontend
 services:
   app:
     build:
