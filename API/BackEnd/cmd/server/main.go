@@ -15,7 +15,7 @@ func main() {
 
 	db.Migrate(http_app.DB)
 
-	mqtt_app, err := di.InitializeMQTTApp(http_app.Config, http_app.DB)
+	mqtt_app, err := di.InitializeMQTTApp(http_app.Config, http_app.DB, http_app.MQTTClient)
 	if err != nil {
 		log.Fatalf("failed to initialize app: %v", err)
 	}

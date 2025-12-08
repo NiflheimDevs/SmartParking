@@ -16,6 +16,7 @@ type EntranceExitRepository interface {
 	FindVehicleEnter(id uint) (*domain.EntranceExit, error)
 	Exit(ee *domain.EntranceExit) error
 	ParkVehicle(spaceID uint) error
+	FindParkedVehicle(spaceID uint) (*domain.Vehicle, error)
 }
 
 type EntranceExitUseCase struct {
@@ -85,4 +86,8 @@ func (uc *EntranceExitUseCase) Exit(id string) (int64, error) {
 
 func (uc *EntranceExitUseCase) ParkVehicle(spaceID uint) error {
 	return uc.repo.ParkVehicle(spaceID)
+}
+
+func (uc *EntranceExitUseCase) FindParkedVehicle(spaceID uint) (*domain.Vehicle, error) {
+	return uc.repo.FindParkedVehicle(spaceID)
 }

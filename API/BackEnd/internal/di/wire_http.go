@@ -10,6 +10,8 @@ import (
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
 	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
+	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
 	"github.com/niflheimdevs/smartparking/internal/middleware"
 	"github.com/niflheimdevs/smartparking/internal/repository"
 	"github.com/niflheimdevs/smartparking/internal/usecase"
@@ -17,30 +19,20 @@ import (
 
 func InitializeHttpApp() (*http.App, error) {
 	wire.Build(
-		// Core
 		config.Load,
 		db.Connect,
 
-		// Repositories
-		repository.NewVehicleRepository,
-		repository.NewEntranceExitRepository,
-		repository.NewParkingSpotRepository,
+		CoreSet, // <--- HERE
+
 		repository.NewUserRepository,
-
-		// Bind interfaces
-		wire.Bind(new(usecase.VehicleRepository), new(*repository.VehicleRepository)),
-		wire.Bind(new(usecase.EntranceExitRepository), new(*repository.EntranceExitRepository)),
-		wire.Bind(new(usecase.ParkingSpotRepository), new(*repository.ParkingSpotRepository)),
 		wire.Bind(new(usecase.UserRepository), new(*repository.UserRepository)),
-
-		// Usecases
-		usecase.NewVehicleUseCase,
-		usecase.NewEntranceExitUseCase,
-		usecase.NewParkingSpotUseCase,
 		usecase.NewUserUseCase,
 		usecase.NewJWT,
 
-		// Handlers
+		mqtt_handler.NewSensorHandler,
+		mqtt.InitMQTTClient,
+
+		http_handler.NewGateHandler,
 		http_handler.NewVehicleHandler,
 		http_handler.NewEntranceExitHandler,
 		http_handler.NewParkingSpotHandler,
@@ -48,7 +40,6 @@ func InitializeHttpApp() (*http.App, error) {
 
 		middleware.NewJWTMiddleware,
 
-		// HTTP App
 		http.NewHandlers,
 		http.NewMiddlewares,
 		http.NewHttpApp,

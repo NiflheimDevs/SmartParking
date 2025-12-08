@@ -1,6 +1,7 @@
 package http
 
 import (
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
@@ -14,6 +15,7 @@ type Handlers struct {
 	EntranceExit *http_handler.EntranceExitHandler
 	ParkingSpot  *http_handler.ParkingSpotHandler
 	User         *http_handler.UserHandler
+	Gate         *http_handler.GateHandler
 }
 
 type Middlewares struct {
@@ -25,12 +27,14 @@ func NewHandlers(
 	ee *http_handler.EntranceExitHandler,
 	ps *http_handler.ParkingSpotHandler,
 	u *http_handler.UserHandler,
+	g *http_handler.GateHandler,
 ) *Handlers {
 	return &Handlers{
 		Vehicle:      v,
 		EntranceExit: ee,
 		ParkingSpot:  ps,
 		User:         u,
+		Gate:         g,
 	}
 }
 
@@ -43,12 +47,13 @@ func NewMiddlewares(
 }
 
 type App struct {
-	Router *gin.Engine
-	Config *config.Config
-	DB     *gorm.DB
+	Router     *gin.Engine
+	Config     *config.Config
+	DB         *gorm.DB
+	MQTTClient mqtt.Client
 }
 
-func NewHttpApp(cfg *config.Config, db *gorm.DB, handlers *Handlers, middlewares *Middlewares) *App {
+func NewHttpApp(cfg *config.Config, db *gorm.DB, client mqtt.Client, handlers *Handlers, middlewares *Middlewares) *App {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(cors.New(cors.Config{
@@ -81,6 +86,10 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, handlers *Handlers, middlewares
 		{
 			ps_api.GET("/", handlers.ParkingSpot.GetStatus)
 		}
+		g_api := protected.Group("/gate")
+		{
+			g_api.POST("/control", handlers.Gate.Control)
+		}
 	}
 
 	u_api := r.Group("/v1")
@@ -90,9 +99,10 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, handlers *Handlers, middlewares
 	}
 
 	return &App{
-		Router: r,
-		Config: cfg,
-		DB:     db,
+		Router:     r,
+		Config:     cfg,
+		DB:         db,
+		MQTTClient: client,
 	}
 }
 

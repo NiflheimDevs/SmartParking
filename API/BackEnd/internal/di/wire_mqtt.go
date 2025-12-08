@@ -5,27 +5,17 @@
 package di
 
 import (
+	mqtt_a "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/wire"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
 	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
-	"github.com/niflheimdevs/smartparking/internal/repository"
-	"github.com/niflheimdevs/smartparking/internal/usecase"
 	"gorm.io/gorm"
 )
 
-func InitializeMQTTApp(cfg *config.Config, db *gorm.DB) (*mqtt.MQTTClient, error) {
+func InitializeMQTTApp(cfg *config.Config, db *gorm.DB, client mqtt_a.Client) (*mqtt.MQTTClient, error) {
 	wire.Build(
-		repository.NewEntranceExitRepository,
-		repository.NewParkingSpotRepository,
-		repository.NewVehicleRepository,
-		wire.Bind(new(usecase.EntranceExitRepository), new(*repository.EntranceExitRepository)),
-		wire.Bind(new(usecase.ParkingSpotRepository), new(*repository.ParkingSpotRepository)),
-		wire.Bind(new(usecase.VehicleRepository), new(*repository.VehicleRepository)),
-
-		usecase.NewEntranceExitUseCase,
-		usecase.NewParkingSpotUseCase,
-		usecase.NewVehicleUseCase,
+		CoreSet, // <--- HERE
 
 		mqtt_handler.NewSensorHandler,
 

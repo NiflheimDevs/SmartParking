@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/niflheimdevs/smartparking/internal/domain"
+	"github.com/niflheimdevs/smartparking/internal/dto"
 )
 
 type ParkingSpotRepository interface {
@@ -14,18 +15,42 @@ type ParkingSpotRepository interface {
 }
 
 type ParkingSpotUseCase struct {
-	repo ParkingSpotRepository
+	EntranceExitUseCase *EntranceExitUseCase
+	repo                ParkingSpotRepository
 }
 
-func NewParkingSpotUseCase(repo ParkingSpotRepository) *ParkingSpotUseCase {
+func NewParkingSpotUseCase(
+	eeuc *EntranceExitUseCase,
+	repo ParkingSpotRepository,
+) *ParkingSpotUseCase {
 	return &ParkingSpotUseCase{
-		repo: repo,
+		EntranceExitUseCase: eeuc,
+		repo:                repo,
 	}
 }
 
-func (uc *ParkingSpotUseCase) List() ([]domain.ParkingSpot, error) {
+func (uc *ParkingSpotUseCase) List() ([]dto.ParkingSpotDTO, error) {
+	var pssdto []dto.ParkingSpotDTO
 	pss, err := uc.repo.GetAll()
-	return pss[1:], err
+	if err != nil {
+		return nil, err
+	}
+	for _, ps := range pss[1:] {
+		var psdto dto.ParkingSpotDTO
+		psdto.Number = ps.SpotNumber
+		psdto.IsOccupied = ps.IsOccupied
+		if ps.IsOccupied {
+			vehicle, err := uc.EntranceExitUseCase.FindParkedVehicle(ps.ID)
+			if err != nil {
+				return nil, err
+			}
+			psdto.Vehicle = vehicle
+		} else {
+			psdto.Vehicle = nil
+		}
+		pssdto = append(pssdto, psdto)
+	}
+	return pssdto, nil
 }
 
 func (uc *ParkingSpotUseCase) FindFree() (*domain.ParkingSpot, error) {
