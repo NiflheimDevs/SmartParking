@@ -54,11 +54,18 @@ func (r *EntranceExitRepository) ParkVehicle(spaceID uint) error {
 	return r.db.Exec("UPDATE entrance_exits SET spot_id = ? WHERE id = (SELECT id FROM entrance_exits WHERE spot_id = 1 ORDER BY id DESC LIMIT 1)", spaceID).Error
 }
 
-func (r *EntranceExitRepository) FindParkedVehicle(spaceID uint) (*domain.Vehicle, error) {
-	var vehicle domain.Vehicle
-	err := r.db.Joins("JOIN entrance_exits ON entrance_exits.vehicle_id = vehicles.id").
-		Where("entrance_exits.spot_id = ? AND entrance_exits.exit_time = ?", spaceID, time.Time{}).
-		Order("entrance_exits.id DESC").
-		First(&vehicle).Error
-	return &vehicle, err
+func (r *EntranceExitRepository) FindParkedVehicle(spaceID uint) (*domain.Vehicle, *domain.EntranceExit, error) {
+	var ee domain.EntranceExit
+
+	err := r.db.
+		Preload("Vehicle").
+		Where("spot_id = ? AND exit_time = ?", spaceID, time.Time{}).
+		Order("id DESC").
+		First(&ee).Error
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &ee.Vehicle, &ee, nil
 }
