@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: "https://api.smartparking.niflheimdevs.ir/v1",
+  //baseURL: "https://api.smartparking.niflheimdevs.ir/v1",
+  baseURL: "http://localhost:8080/v1",
   headers: {
     "Content-Type": "application/json",
   },
@@ -178,3 +179,12 @@ export const signup = async (data: AuthPayload) => {
     throw error.response?.data || "خطا در ثبت نام"
   }
 };
+
+export const controlgate = async (gate: string, state: boolean) => {
+  try {
+    const response = await apiClient.post("/gate/control", { gate, state });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || "خطا در کنترل گیت!";
+  }
+}
