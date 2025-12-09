@@ -6,14 +6,11 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
-	"gorm.io/gorm"
 )
 
 type MQTTClient struct {
 	client  mqtt.Client
 	Handler *mqtt_handler.SensorHandler
-	Config  *config.Config
-	DB      *gorm.DB
 }
 
 func InitMQTTClient(cfg *config.Config) mqtt.Client {
@@ -29,8 +26,8 @@ func InitMQTTClient(cfg *config.Config) mqtt.Client {
 	return client
 }
 
-func InitMQTT(client mqtt.Client, cfg *config.Config, handler *mqtt_handler.SensorHandler) *MQTTClient {
-	return &MQTTClient{client: client, Handler: handler, Config: cfg}
+func InitMQTT(client mqtt.Client, handler *mqtt_handler.SensorHandler) *MQTTClient {
+	return &MQTTClient{client: client, Handler: handler}
 }
 
 func (m *MQTTClient) Listen() {

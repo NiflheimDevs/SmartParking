@@ -5,6 +5,7 @@ package di
 
 import (
 	"github.com/google/wire"
+	"gorm.io/gorm"
 
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/db"
@@ -17,15 +18,34 @@ import (
 	"github.com/niflheimdevs/smartparking/internal/usecase"
 )
 
-func InitializeHttpApp() (*http.App, error) {
+type App struct {
+	HttpApp    *http.HTTPApp
+	MQTTClient *mqtt.MQTTClient
+	Config     *config.Config
+	DB         *gorm.DB
+}
+
+func InitializeApp() (*App, error) {
 	wire.Build(
 		config.Load,
 		db.Connect,
 
-		CoreSet, // <--- HERE
-
+		// Repositories
+		repository.NewVehicleRepository,
+		repository.NewEntranceExitRepository,
+		repository.NewParkingSpotRepository,
 		repository.NewUserRepository,
+
+		// Bind
+		wire.Bind(new(usecase.VehicleRepository), new(*repository.VehicleRepository)),
+		wire.Bind(new(usecase.EntranceExitRepository), new(*repository.EntranceExitRepository)),
+		wire.Bind(new(usecase.ParkingSpotRepository), new(*repository.ParkingSpotRepository)),
 		wire.Bind(new(usecase.UserRepository), new(*repository.UserRepository)),
+
+		// Usecases
+		usecase.NewVehicleUseCase,
+		usecase.NewEntranceExitUseCase,
+		usecase.NewParkingSpotUseCase,
 		usecase.NewUserUseCase,
 		usecase.NewJWT,
 
@@ -40,9 +60,14 @@ func InitializeHttpApp() (*http.App, error) {
 
 		middleware.NewJWTMiddleware,
 
-		http.NewHandlers,
-		http.NewMiddlewares,
+		wire.Struct(new(http.Handlers), "*"),
+		wire.Struct(new(http.Middlewares), "*"),
+
+		mqtt.InitMQTT,
+
 		http.NewHttpApp,
+
+		wire.Struct(new(App), "*"),
 	)
-	return &http.App{}, nil
+	return &App{}, nil
 }

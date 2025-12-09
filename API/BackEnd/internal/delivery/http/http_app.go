@@ -1,13 +1,11 @@
 package http
 
 import (
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
 	"github.com/niflheimdevs/smartparking/internal/middleware"
-	"gorm.io/gorm"
 )
 
 type Handlers struct {
@@ -22,38 +20,12 @@ type Middlewares struct {
 	JWT *middleware.JWTMiddleware
 }
 
-func NewHandlers(
-	v *http_handler.VehicleHandler,
-	ee *http_handler.EntranceExitHandler,
-	ps *http_handler.ParkingSpotHandler,
-	u *http_handler.UserHandler,
-	g *http_handler.GateHandler,
-) *Handlers {
-	return &Handlers{
-		Vehicle:      v,
-		EntranceExit: ee,
-		ParkingSpot:  ps,
-		User:         u,
-		Gate:         g,
-	}
+type HTTPApp struct {
+	Router *gin.Engine
+	Config *config.Config
 }
 
-func NewMiddlewares(
-	jwt *middleware.JWTMiddleware,
-) *Middlewares {
-	return &Middlewares{
-		JWT: jwt,
-	}
-}
-
-type App struct {
-	Router     *gin.Engine
-	Config     *config.Config
-	DB         *gorm.DB
-	MQTTClient mqtt.Client
-}
-
-func NewHttpApp(cfg *config.Config, db *gorm.DB, client mqtt.Client, handlers *Handlers, middlewares *Middlewares) *App {
+func NewHttpApp(cfg *config.Config, handlers *Handlers, middlewares *Middlewares) *HTTPApp {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(cors.New(cors.Config{
@@ -98,14 +70,12 @@ func NewHttpApp(cfg *config.Config, db *gorm.DB, client mqtt.Client, handlers *H
 		u_api.POST("/login", handlers.User.Login)
 	}
 
-	return &App{
-		Router:     r,
-		Config:     cfg,
-		DB:         db,
-		MQTTClient: client,
+	return &HTTPApp{
+		Router: r,
+		Config: cfg,
 	}
 }
 
-func (a *App) Run() error {
+func (a *HTTPApp) Run() error {
 	return a.Router.Run(a.Config.Server.Port)
 }

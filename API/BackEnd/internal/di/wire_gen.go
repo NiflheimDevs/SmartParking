@@ -7,7 +7,6 @@
 package di
 
 import (
-	mqtt2 "github.com/eclipse/paho.mqtt.golang"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
@@ -20,12 +19,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// Injectors from wire_http.go:
+// Injectors from wire.go:
 
-func InitializeHttpApp() (*http.App, error) {
+func InitializeApp() (*App, error) {
 	configConfig := config.Load()
 	gormDB := db.Connect(configConfig)
-	client := mqtt.InitMQTTClient(configConfig)
 	vehicleRepository := repository.NewVehicleRepository(gormDB)
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
 	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
@@ -39,25 +37,36 @@ func InitializeHttpApp() (*http.App, error) {
 	jwt := usecase.NewJWT(configConfig)
 	userUseCase := usecase.NewUserUseCase(userRepository, jwt)
 	userHandler := http_handler.NewUserHandler(userUseCase)
+	client := mqtt.InitMQTTClient(configConfig)
 	sensorHandler := mqtt_handler.NewSensorHandler(client, entranceExitUseCase, parkingSpotUseCase, vehicleUseCase)
 	gateHandler := http_handler.NewGateHandler(sensorHandler)
-	handlers := http.NewHandlers(vehicleHandler, entranceExitHandler, parkingSpotHandler, userHandler, gateHandler)
+	handlers := &http.Handlers{
+		Vehicle:      vehicleHandler,
+		EntranceExit: entranceExitHandler,
+		ParkingSpot:  parkingSpotHandler,
+		User:         userHandler,
+		Gate:         gateHandler,
+	}
 	jwtMiddleware := middleware.NewJWTMiddleware(jwt)
-	middlewares := http.NewMiddlewares(jwtMiddleware)
-	app := http.NewHttpApp(configConfig, gormDB, client, handlers, middlewares)
+	middlewares := &http.Middlewares{
+		JWT: jwtMiddleware,
+	}
+	httpApp := http.NewHttpApp(configConfig, handlers, middlewares)
+	mqttClient := mqtt.InitMQTT(client, sensorHandler)
+	app := &App{
+		HttpApp:    httpApp,
+		MQTTClient: mqttClient,
+		Config:     configConfig,
+		DB:         gormDB,
+	}
 	return app, nil
 }
 
-// Injectors from wire_mqtt.go:
+// wire.go:
 
-func InitializeMQTTApp(cfg *config.Config, db2 *gorm.DB, client mqtt2.Client) (*mqtt.MQTTClient, error) {
-	entranceExitRepository := repository.NewEntranceExitRepository(db2)
-	vehicleRepository := repository.NewVehicleRepository(db2)
-	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
-	entranceExitUseCase := usecase.NewEntranceExitUseCase(cfg, entranceExitRepository, vehicleUseCase)
-	parkingSpotRepository := repository.NewParkingSpotRepository(db2)
-	parkingSpotUseCase := usecase.NewParkingSpotUseCase(entranceExitUseCase, parkingSpotRepository)
-	sensorHandler := mqtt_handler.NewSensorHandler(client, entranceExitUseCase, parkingSpotUseCase, vehicleUseCase)
-	mqttClient := mqtt.InitMQTT(client, cfg, sensorHandler)
-	return mqttClient, nil
+type App struct {
+	HttpApp    *http.HTTPApp
+	MQTTClient *mqtt.MQTTClient
+	Config     *config.Config
+	DB         *gorm.DB
 }
