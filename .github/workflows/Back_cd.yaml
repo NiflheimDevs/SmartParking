@@ -57,15 +57,6 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "API/BackEnd/internal/db/migration/init.sql"
           target: "/home/ubuntu/SmartParking"
-
-      - name: Copy mosquitto config
-        uses: appleboy/scp-action@v0.1.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: "API/mosquitto/config/mosquitto.conf"
-          target: "/home/ubuntu/SmartParking"
           
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.8
