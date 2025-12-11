@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getAllLogs, getLogById, getLogsByVehicle } from "../api";
+import { getAllLogs, getLogById, getLogsByVehicle } from "../../api";
+import LogCard from "./LogCard"
 
 const EntranceExitPanel = () => {
   const [logs, setLogs] = useState<any[]>([]);
@@ -67,30 +68,32 @@ const EntranceExitPanel = () => {
   }, []);
 
   return (
-    <section className="grid gap-4 lg:grid-cols-3">
+    <section className="grid gap-6 lg:grid-cols-3">
 
       {/* LEFT PANEL */}
       <div className="panel p-6 lg:col-span-1">
-        <h3 className="text-accent font-semibold mb-4">Entrance / Exit Logs</h3>
+        <h3 className="text-accent font-semibold mb-4 text-lg">
+          Entrance / Exit Logs
+        </h3>
 
         {/* Mode Buttons */}
-        <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-col gap-3">
           <button
-            className={`btn-accent ${mode === "all" ? "" : "opacity-40"}`}
+            className={`btn-accent py-2 ${mode === "all" ? "" : "opacity-50 hover:opacity-70"}`}
             onClick={() => setMode("all")}
           >
             Show All Logs
           </button>
 
           <button
-            className={`btn-accent ${mode === "log" ? "" : "opacity-40"}`}
+            className={`btn-accent py-2 ${mode === "log" ? "" : "opacity-50 hover:opacity-70"}`}
             onClick={() => setMode("log")}
           >
             Search by Log ID
           </button>
 
           <button
-            className={`btn-accent ${mode === "vehicle" ? "" : "opacity-40"}`}
+            className={`btn-accent py-2 ${mode === "vehicle" ? "" : "opacity-50 hover:opacity-70"}`}
             onClick={() => setMode("vehicle")}
           >
             Search by Vehicle ID
@@ -99,15 +102,22 @@ const EntranceExitPanel = () => {
 
         {/* SEARCH FIELD */}
         {mode !== "all" && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={mode === "log" ? "Enter Log ID" : "Enter Vehicle ID"}
-              className="input"
+              placeholder={
+                mode === "log"
+                  ? "Enter Log ID (e.g., 98237)"
+                  : "Enter Vehicle ID (e.g., 21A-445)"
+              }
+              className="input flex-1"
             />
-            <button className="btn-accent" onClick={handleSearch}>
-              Search
+            <button
+              className="btn-accent px-4"
+              onClick={handleSearch}
+            >
+              Go
             </button>
           </div>
         )}
@@ -115,25 +125,30 @@ const EntranceExitPanel = () => {
 
       {/* RIGHT PANEL */}
       <div className="panel p-6 lg:col-span-2">
-        <h3 className="text-accent font-semibold mb-4">
-          {loading ? "Loading…" : `Results (${logs.length})`}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-accent font-semibold text-lg">
+            {loading ? "Loading…" : `Results (${logs.length})`}
+          </h3>
+        </div>
 
-        {loading && <p className="text-slate-400 text-sm">Loading logs…</p>}
+        {loading && (
+          <p className="text-slate-400 text-sm animate-pulse">Loading logs…</p>
+        )}
 
         {!loading && logs.length === 0 && (
-          <p className="text-slate-400 text-sm">No logs found.</p>
+          <p className="text-slate-400 text-sm">
+            No logs found for the current search.
+          </p>
         )}
 
         {!loading && logs.length > 0 && (
-          <div className="bg-slate-900/60 rounded-md p-4 border-l-4 border-accent max-h-[600px] overflow-auto">
-            <pre className="text-sm text-slate-100">
-              {JSON.stringify(logs, null, 2)}
-            </pre>
+          <div className="grid gap-4 max-h-[525px] overflow-auto pr-2">
+            {logs.map((log) => (
+              <LogCard key={log.id} log={log} />
+            ))}
           </div>
         )}
       </div>
-
     </section>
   );
 };

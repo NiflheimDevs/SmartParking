@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import CrudPanel from "./components/CRUD/CrudPanel";
-import VehicleSearch from "./components/VehicleSearch";
+import VehicleSearch from "./components/VehicleSearch/VehicleSearch";
 import Schematic from "./components/Schematic";
-import EntranceExitPanel from "./components/EntranceExitPanel";
+import EntranceExitPanel from "./components/EntranceExit/EntranceExitPanel";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
 import Footer from "./components/Footer";
