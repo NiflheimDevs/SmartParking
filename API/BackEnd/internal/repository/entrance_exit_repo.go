@@ -19,19 +19,19 @@ func NewEntranceExitRepository(db *gorm.DB) *EntranceExitRepository {
 
 func (r *EntranceExitRepository) GetAll() ([]domain.EntranceExit, error) {
 	var ees []domain.EntranceExit
-	err := r.db.Preload("Vehicle").Find(&ees).Error
+	err := r.db.Preload("ParkingSpot").Preload("Vehicle").Find(&ees).Error
 	return ees, err
 }
 
 func (r *EntranceExitRepository) Info(id uint) (*domain.EntranceExit, error) {
 	var ee domain.EntranceExit
-	err := r.db.Preload("Vehicle").First(&ee, id).Error
+	err := r.db.Preload("ParkingSpot").Preload("Vehicle").First(&ee, id).Error
 	return &ee, err
 }
 
 func (r *EntranceExitRepository) VehicleLog(id uint) ([]domain.EntranceExit, error) {
 	var log []domain.EntranceExit
-	err := r.db.Preload("Vehicle").Where("vehicle_id = ?", id).Find(&log).Error
+	err := r.db.Preload("ParkingSpot").Preload("Vehicle").Where("vehicle_id = ?", id).Find(&log).Error
 	return log, err
 }
 
