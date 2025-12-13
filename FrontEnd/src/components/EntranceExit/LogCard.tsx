@@ -31,6 +31,13 @@ const LogCard = ({ log }: LogCardProps) => {
 
       {/* TIMES */}
       <div className="border-t border-slate-700 pt-3 mt-3 text-sm">
+       {!isExited && (
+          <p className="text-slate-400">
+            <span className="font-semibold text-slate-200">Space Number:</span>{" "}
+            {log.parking_spot?.spot_number}
+          </p>
+        )}
+
         <p className="text-slate-400">
           <span className="font-semibold text-slate-200">Entrance:</span> {new Date(log.entrance_time).toLocaleString()}
         </p>
