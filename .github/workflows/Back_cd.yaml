@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - Feat/Back/Login
     paths:
       - "API/**"
 jobs:
