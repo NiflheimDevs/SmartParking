@@ -5,3 +5,4 @@
 .vscode/ipch
 /API/mosquitto/data
 /API/mosquitto/log
+/API/BackEnd/internal/jwt

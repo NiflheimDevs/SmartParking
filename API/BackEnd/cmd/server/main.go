@@ -8,22 +8,17 @@ import (
 )
 
 func main() {
-	http_app, err := di.InitializeHttpApp()
+	app, err := di.InitializeApp()
 	if err != nil {
 		log.Fatalf("failed to initialize app: %v", err)
 	}
 
-	db.Migrate(http_app.DB)
+	db.Migrate(app.DB)
 
-	mqtt_app, err := di.InitializeMQTTApp(http_app.Config, http_app.DB)
-	if err != nil {
-		log.Fatalf("failed to initialize app: %v", err)
-	}
+	go app.MQTTClient.Listen()
 
-	go mqtt_app.Listen()
-
-	log.Println("🚀 Smart Parking System running on", http_app.Config.Server.Port)
-	if err := http_app.Run(); err != nil {
+	log.Println("🚀 Smart Parking System running on", app.HttpApp.Config.Server.Port)
+	if err := app.HttpApp.Run(); err != nil {
 		log.Fatal("server stopped:", err)
 	}
 }

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"math"
 	"time"
 
 	"github.com/niflheimdevs/smartparking/internal/config"
@@ -9,12 +10,13 @@ import (
 
 type EntranceExitRepository interface {
 	GetAll() ([]domain.EntranceExit, error)
-	Info(id uint) (domain.EntranceExit, error)
+	Info(id uint) (*domain.EntranceExit, error)
 	VehicleLog(id uint) ([]domain.EntranceExit, error)
-	Enter(ee domain.EntranceExit) error
-	FindVehicleEnter(id uint) (domain.EntranceExit, error)
-	Exit(ee domain.EntranceExit) error
+	Enter(ee *domain.EntranceExit) error
+	FindVehicleEnter(id uint) (*domain.EntranceExit, error)
+	Exit(ee *domain.EntranceExit) error
 	ParkVehicle(spaceID uint) error
+	FindParkedVehicle(spaceID uint) (*domain.Vehicle, *domain.EntranceExit, error)
 }
 
 type EntranceExitUseCase struct {
@@ -39,7 +41,7 @@ func (uc *EntranceExitUseCase) List() ([]domain.EntranceExit, error) {
 	return uc.repo.GetAll()
 }
 
-func (uc *EntranceExitUseCase) Info(id uint) (domain.EntranceExit, error) {
+func (uc *EntranceExitUseCase) Info(id uint) (*domain.EntranceExit, error) {
 	return uc.repo.Info(id)
 }
 
@@ -57,7 +59,7 @@ func (uc *EntranceExitUseCase) Enter(id string) error {
 		SpotID:       1,
 		EntranceTime: time.Now(),
 	}
-	return uc.repo.Enter(ee)
+	return uc.repo.Enter(&ee)
 }
 
 func (uc *EntranceExitUseCase) Exit(id string) (int64, error) {
@@ -73,7 +75,9 @@ func (uc *EntranceExitUseCase) Exit(id string) (int64, error) {
 
 	log.ExitTime = time.Now()
 
-	price := log.ExitTime.Sub(log.EntranceTime).Hours() * float64(uc.cfg.Constant.PricePerHour)
+	price := int64(math.Ceil(log.ExitTime.Sub(log.EntranceTime).Hours())) * uc.cfg.Constant.PricePerHour
+
+	log.Price = price
 
 	err = uc.repo.Exit(log)
 
@@ -82,4 +86,8 @@ func (uc *EntranceExitUseCase) Exit(id string) (int64, error) {
 
 func (uc *EntranceExitUseCase) ParkVehicle(spaceID uint) error {
 	return uc.repo.ParkVehicle(spaceID)
+}
+
+func (uc *EntranceExitUseCase) FindParkedVehicle(spaceID uint) (*domain.Vehicle, *domain.EntranceExit, error) {
+	return uc.repo.FindParkedVehicle(spaceID)
 }
