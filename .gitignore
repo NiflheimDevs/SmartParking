@@ -3,6 +3,5 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-/API/mosquitto/data
-/API/mosquitto/log
+.DS_Store
 /API/BackEnd/internal/jwt
