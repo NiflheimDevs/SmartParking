@@ -1,29 +1,40 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { login } from "../../api";
+import { toast } from "react-toastify";
 import Footer from "../Footer";
 
 export default function LoginPage({ switchToSignup }: { switchToSignup: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    try {
-      if (!username || !password) {
-        alert("Please enter both username and password");
-        return;
-      }
+    if (!username || !password) {
+      toast.warning("Please enter both username and password");
+      return;
+    }
 
+    try {
+      setLoading(true);
       const data = await login({ username, password });
 
       if (data?.token) {
-        window.location.reload(); // Refresh app to re-check auth
+        toast.success("Login successful");
+        setTimeout(() => window.location.reload(), 500);
       } else {
-        alert("Invalid username or password");
+        toast.error("Invalid username or password");
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      alert(err?.message || "Login failed");
+
+      toast.error(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Login failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,9 +76,10 @@ export default function LoginPage({ switchToSignup }: { switchToSignup: () => vo
 
             <button
               onClick={handleLogin}
-              className="w-full px-4 py-2 bg-accent text-slate-900 font-semibold rounded-xl hover:opacity-90 transition"
+              disabled={loading}
+              className="w-full px-4 py-2 bg-accent text-slate-900 font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </div>
 
@@ -83,7 +95,7 @@ export default function LoginPage({ switchToSignup }: { switchToSignup: () => vo
         </div>
       </motion.div>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 }

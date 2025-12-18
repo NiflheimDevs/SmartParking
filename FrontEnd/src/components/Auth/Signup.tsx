@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { signup } from "../../api";
 import RepairKit from "../minigame/RepairKit";
 import Footer from "../Footer";
+import { toast } from "react-toastify";
 
 export default function SignupPage({ switchToLogin }: { switchToLogin: () => void }) {
   const [username, setUsername] = useState("");
@@ -12,7 +13,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
 
   const handleSignupClick = () => {
     if (!username.trim() || !password.trim()) {
-      alert("Please enter both username and password");
+      toast.warning("Please enter both username and password");
       return;
     }
     setShowMiniGame(true);
@@ -21,11 +22,14 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
   const handleWin = async () => {
     setIsSubmitting(true);
     setShowMiniGame(false);
+
     try {
       await signup({ username, password });
+      toast.success("Account created successfully!");
       switchToLogin();
     } catch (err: any) {
-      alert(err?.message || "Signup failed");
+      console.error("Signup error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Signup failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -33,13 +37,11 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
 
   const handleLose = () => {
     setShowMiniGame(false);
-    alert("You Suck Idiot");
+    toast.error("You missed! Try again.");
   };
 
   const closeMinigame = () => {
-    if (!isSubmitting) {
-      setShowMiniGame(false);
-    }
+    if (!isSubmitting) setShowMiniGame(false);
   };
 
   return (
@@ -56,7 +58,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
             alt="Logo"
             className="mx-auto mb-6 w-850 h-auto object-contain"
           />
-          
+
           <h2 className="text-2xl font-semibold text-accent mb-6 text-center">
             Create Your Account
           </h2>
@@ -83,7 +85,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
             <button
               onClick={handleSignupClick}
               disabled={showMiniGame || isSubmitting}
-              className="w-full px-4 py-2 bg-accent text-slate-900 font-semibold rounded-xl hover:opacity-90 transition"
+              className="w-full px-4 py-2 bg-accent text-slate-900 font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50"
             >
               {isSubmitting ? "Creating Account..." : "Sign Up"}
             </button>
@@ -101,7 +103,7 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
         </div>
       </motion.div>
 
-      <Footer/>
+      <Footer />
 
       {showMiniGame && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-8">
@@ -115,14 +117,11 @@ export default function SignupPage({ switchToLogin }: { switchToLogin: () => voi
             </button>
 
             <h3 className="text-center text-2xl font-bold text-cyan-400 mb-6 tracking-wider">
-              RECAPTHA
+              RECAPTCHA
             </h3>
 
             <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-slate-950 p-8 rounded-2xl border-2 border-cyan-800/50 shadow-2xl">
-              <RepairKit
-                onWin={handleWin}
-                onLose={handleLose}
-              />
+              <RepairKit onWin={handleWin} onLose={handleLose} />
             </div>
 
             <p className="text-center text-slate-400 mt-6 text-sm">

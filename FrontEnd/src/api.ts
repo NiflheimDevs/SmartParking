@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: "https://api.smartparking.niflheimdevs.ir/v1",
+  //baseURL: "https://api.smartparking.niflheimdevs.ir/v1",
+  baseURL: "http://localhost:8080/v1",
   headers: {
     "Content-Type": "application/json",
   },
@@ -32,11 +33,12 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // Prevent infinite loops
+    if (error.response?.status === 401) {
       localStorage.removeItem("authToken");
-      return Promise.reject({message: "Unauthorized. Please login again."});
+      window.location.href = "/";
+    }
+    else if (error.response?.status === 403) {
+      window.dispatchEvent(new Event("access-denied"));
     }
     return Promise.reject(error);
   }
