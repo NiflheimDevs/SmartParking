@@ -40,7 +40,7 @@ func (uc *IPLoggerUseCase) HandleIPRequest(ip string) error {
 		return err
 	}
 
-	if count > 5 {
+	if count > 100 {
 		if err := uc.BanUseCase.BanIP(ip, 24*time.Hour); err != nil {
 			return err
 		}
