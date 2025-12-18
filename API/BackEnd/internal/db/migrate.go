@@ -42,6 +42,7 @@ func Migrate(db *gorm.DB) {
 		&domain.ParkingSpot{},
 		&domain.EntranceExit{},
 		&domain.User{},
+		&domain.BannedIP{},
 	)
 	seedParkingSpot(db)
 }

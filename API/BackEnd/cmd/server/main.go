@@ -13,7 +13,7 @@ func main() {
 		log.Fatalf("failed to initialize app: %v", err)
 	}
 
-	db.Migrate(app.DB)
+	db.Migrate(app.PGDB)
 
 	go app.MQTTClient.Listen()
 

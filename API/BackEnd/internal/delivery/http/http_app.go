@@ -17,7 +17,9 @@ type Handlers struct {
 }
 
 type Middlewares struct {
-	JWT *middleware.JWTMiddleware
+	JWT      *middleware.JWTMiddleware
+	Ban      *middleware.IPBanMiddleware
+	IPLogger *middleware.IPLoggerMiddleware
 }
 
 type HTTPApp struct {
@@ -34,6 +36,8 @@ func NewHttpApp(cfg *config.Config, handlers *Handlers, middlewares *Middlewares
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
+	r.Use(middlewares.IPLogger.IPLogger())
+	r.Use(middlewares.Ban.CheckIPBan())
 
 	protected := r.Group("/v1")
 	protected.Use(middlewares.JWT.Validate())

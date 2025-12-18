@@ -23,6 +23,14 @@ services:
       - ./BackEnd/internal/db/migration/init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - pgdata:/var/lib/postgresql
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    volumes:
+      - redisdata:/data
+    command: redis-server --save 60 1 --loglevel warning
+
   app:
     build:
       context: ./BackEnd
@@ -38,3 +46,4 @@ services:
 
 volumes:
   pgdata:
+  redisdata:

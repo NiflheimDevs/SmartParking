@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - Feat/Back/Ban
     paths:
       - "API/**"
 jobs:
