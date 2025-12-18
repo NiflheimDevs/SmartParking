@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src","public/minigame"]
+  "include": ["src","public/RepairKit","public/Chopping"]
 }
