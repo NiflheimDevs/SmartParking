@@ -32,7 +32,7 @@ func (m *IPLoggerMiddleware) IPLogger() gin.HandlerFunc {
 				return
 
 			default:
-				// unexpected error
+
 				c.AbortWithStatusJSON(500, gin.H{
 					"error": "internal server error",
 				})
@@ -41,5 +41,26 @@ func (m *IPLoggerMiddleware) IPLogger() gin.HandlerFunc {
 		}
 
 		c.Next()
+
+		if c.Writer.Status() == 404 {
+			err = m.uc.BadRequestIP(ip)
+			if err != nil {
+				switch {
+				case errors.Is(err, domain.ErrIPBannedByRateLimit):
+
+					c.AbortWithStatusJSON(403, gin.H{
+						"error": err.Error(),
+					})
+					return
+
+				default:
+
+					c.AbortWithStatusJSON(500, gin.H{
+						"error": "internal server error",
+					})
+					return
+				}
+			}
+		}
 	}
 }

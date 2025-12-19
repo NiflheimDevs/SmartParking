@@ -49,3 +49,23 @@ func (uc *IPLoggerUseCase) HandleIPRequest(ip string) error {
 
 	return nil
 }
+
+func (uc *IPLoggerUseCase) BadRequestIP(ip string) error {
+	key := "ip_bad_request:" + ip
+
+	err := uc.repo.IncrementIPRequestCount(key)
+	if err != nil {
+		return err
+	}
+	count, err := uc.repo.GetIPRequestCount(key)
+	if err != nil {
+		return err
+	}
+	if count > 5 {
+		if err := uc.BanUseCase.BanIP(ip, 24*time.Hour); err != nil {
+			return err
+		}
+		return domain.ErrIPBannedByRateLimit
+	}
+	return nil
+}
