@@ -10,6 +10,8 @@ services:
     environment:
       - EMQX_NAME=emqx
       - EMQX_HOST=node1.emqx.io
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=2004@Saman
 
   postgres:
     image: postgres:latest
