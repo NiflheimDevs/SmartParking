@@ -4,14 +4,20 @@
 #include "sensors/ultrasonic_sensor.h"
 #include "RFID/RFID_reader.h"
 #include "Led/Led.h"
+#include "mqtt_client.h"
+
 
 void setup() {
     Serial.begin(115200);
+    delay(2000);
+    
+    initWiFi();
     
     // Initialize all system components
-    setupServo(SERVO_PIN);
+    setupServo(SERVO_EXIT_PIN);
+    setupServo(SERVO_ENTRY_PIN);
     setupAllUltrasonicSensors();
-    setupRFID(RFID_SS_PIN, RFID_RST_PIN);
+    setupDualRFID();  // Initialize dual RFID readers (entry and exit)
     setupLEDStrip();
     
     // Show system ready status
@@ -22,20 +28,37 @@ void setup() {
 void loop() {
     String cardUID;
 
-    // Check RFID authorization for gate access
-    if (isAuthorizedCard(cardUID)) {
-        Serial.println("Gate opening...");
-        showRFIDStatus(true);
-        setServoAngle(SERVO_OPEN_ANGLE);
-        delay(3000);
-        setServoAngle(SERVO_CLOSED_ANGLE);
+    // Maintain MQTT connection
+    client.loop();
+    if (!client.connected()) {
+        connect();
     }
 
-    // Update all parking space LEDs based on sensor readings
+    // Read Entry RFID reader and send via MQTT
+    if (readRFIDEntry(cardUID)) 
+    {
+        showRFIDStatus(true);
+        JSONVar jsonObj;
+        jsonObj["rfid"] = cardUID;
+        String jsonString = JSON.stringify(jsonObj);
+        client.publish("parking/entrance", jsonString.c_str());
+    }
+
+    // Read Exit RFID reader and send via MQTT
+    if (readRFIDExit(cardUID)) 
+    {
+        showRFIDStatus(true);
+        JSONVar jsonObj;
+        jsonObj["rfid"] = cardUID;
+        String jsonString = JSON.stringify(jsonObj);
+        client.publish("parking/exit", jsonString.c_str());
+    }
+
+    
     updateParkingSpaceLEDs();
     
-    // Check if parking lot is full
-    if (areAllParkingSpacesOccupied()) {
+    if (areAllParkingSpacesOccupied()) 
+    {
         Serial.println("🚨 All parking spaces are occupied!");
     }
 

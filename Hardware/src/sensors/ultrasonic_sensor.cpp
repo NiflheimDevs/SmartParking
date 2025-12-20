@@ -27,17 +27,6 @@ void setupUltrasonic(int trigPin, int echoPin) {
     pinMode(echoPin_, INPUT);
 }
 
-// float getDistance() {
-//     digitalWrite(trigPin_, LOW);
-//     delayMicroseconds(2);
-//     digitalWrite(trigPin_, HIGH);
-//     delayMicroseconds(10);
-//     digitalWrite(trigPin_, LOW);
-
-//     long duration = pulseIn(echoPin_, HIGH);
-//     float distance = duration * 0.034 / 2;
-//     return distance;
-// }
 
 // Multi-sensor functions for parking system
 void setupAllUltrasonicSensors() {
@@ -66,32 +55,4 @@ float getDistance(int sensorIndex) {
     long duration = pulseIn(echoPins[sensorIndex], HIGH);
     float distance = duration * 0.034 / 2;
     return distance;
-}
-
-bool isParkingSpaceOccupied(int spaceIndex) {
-    if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES) {
-        return false;
-    }
-    
-    float distance = getDistance(spaceIndex);
-    return (distance > 0 && distance < PARKING_THRESHOLD);
-}
-
-bool areAllParkingSpacesOccupied() {
-    for (int i = 0; i < PARKING_SPACES; i++) {
-        if (!isParkingSpaceOccupied(i)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-int getAvailableParkingSpaces() {
-    int availableCount = 0;
-    for (int i = 0; i < PARKING_SPACES; i++) {
-        if (!isParkingSpaceOccupied(i)) {
-            availableCount++;
-        }
-    }
-    return availableCount;
 }

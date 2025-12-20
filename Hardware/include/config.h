@@ -65,9 +65,8 @@
 #define SERVO_CLOSED_ANGLE 0
 #define SENSOR_READ_INTERVAL 500
 
-// WiFi Configuration
-#define WIFI_SSID "YOUR_WIFI_SSID"
-#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+const char ssid[] = "NotParsaSn";
+const char pass[] = "Parsa138282";
 
 // MQTT Configuration
 #define MQTT_BROKER ""  // Change to your MQTT broker
