@@ -136,9 +136,18 @@ func (h *SensorHandler) OnExit(msg mqtt.Message) {
 	resp := ExitRespnsePayload{RFID: p.RFID}
 
 	exists, err := h.VehicleUseCase.CheckRFID(p.RFID)
-	if err != nil || !exists {
-		log.Printf("Error in check RFID or it doesn't exists")
+	if err != nil {
+		log.Printf("Error in check RFID")
 		resp.Error = err.Error()
+		if b, mErr := json.Marshal(resp); mErr == nil {
+			h.Publish(topic, 0, false, b)
+		}
+		return
+	}
+
+	if !exists {
+		log.Printf("RFID doesn't exist")
+		resp.Error = "RFID doesn't Exists"
 		if b, mErr := json.Marshal(resp); mErr == nil {
 			h.Publish(topic, 0, false, b)
 		}
