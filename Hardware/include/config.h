@@ -64,6 +64,7 @@
 #define SERVO_OPEN_ANGLE 180
 #define SERVO_CLOSED_ANGLE 0
 #define SENSOR_READ_INTERVAL 500
+#define GATE_OPEN_DURATION_MS 3000  // Gate stays open for 3 seconds
 
 const char ssid[] = "NotParsaSn";
 const char pass[] = "Parsa138282";

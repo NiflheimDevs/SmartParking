@@ -56,3 +56,37 @@ float getDistance(int sensorIndex) {
     float distance = duration * 0.034 / 2;
     return distance;
 }
+
+bool isParkingSpaceOccupied(int spaceIndex) {
+    if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES) {
+        return false;
+    }
+    
+    float distance = getDistance(spaceIndex);
+    
+    // If distance is less than threshold, space is occupied
+    // If distance is -1 or very large, consider it as not occupied (sensor error)
+    if (distance > 0 && distance < PARKING_THRESHOLD) {
+        return true;
+    }
+    return false;
+}
+
+bool areAllParkingSpacesOccupied() {
+    for (int i = 0; i < PARKING_SPACES; i++) {
+        if (!isParkingSpaceOccupied(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int getAvailableParkingSpaces() {
+    int available = 0;
+    for (int i = 0; i < PARKING_SPACES; i++) {
+        if (!isParkingSpaceOccupied(i)) {
+            available++;
+        }
+    }
+    return available;
+}

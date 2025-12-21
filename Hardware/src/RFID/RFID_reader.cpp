@@ -34,14 +34,62 @@ void setupDualRFID() {
 }
 
 
-void readRFIDEntry() {
+bool readRFIDEntry(String &cardUID) {
     if (rfidEntry.PICC_IsNewCardPresent() && rfidEntry.PICC_ReadCardSerial()) {
-        JSONVar jsonObj;
-        jsonObj["rfid : "] = String(rfidEntry.uid.uidByte,HEX);
-        String jsonString = JSON.stringify(jsonObj);
-        client.publish("parking/entrance", jsonString.c_str());
+        // Convert UID to string
+        cardUID = "";
+        for (byte i = 0; i < rfidEntry.uid.size; i++) {
+            if (rfidEntry.uid.uidByte[i] < 0x10) cardUID += "0";
+            cardUID += String(rfidEntry.uid.uidByte[i], HEX);
+        }
+        cardUID.toUpperCase();
         rfidEntry.PICC_HaltA();
+        return true;
     }
-    delay(200);
+    return false;
 }
 
+bool readRFIDExit(String &cardUID) {
+    if (rfidExit.PICC_IsNewCardPresent() && rfidExit.PICC_ReadCardSerial()) {
+        // Convert UID to string
+        cardUID = "";
+        for (byte i = 0; i < rfidExit.uid.size; i++) {
+            if (rfidExit.uid.uidByte[i] < 0x10) cardUID += "0";
+            cardUID += String(rfidExit.uid.uidByte[i], HEX);
+        }
+        cardUID.toUpperCase();
+        rfidExit.PICC_HaltA();
+        return true;
+    }
+    return false;
+}
+
+void checkReader(MFRC522 &reader, const char* name) {
+    byte version = reader.PCD_ReadRegister(reader.VersionReg);
+    if (version == 0x00 || version == 0xFF) {
+        Serial.println("⚠️ " + String(name) + " not found or communication failure");
+    } else {
+        Serial.println("✅ " + String(name) + " detected (Version: 0x" + String(version, HEX) + ")");
+    }
+}
+
+void printUID(byte *uid, byte size) {
+    for (byte i = 0; i < size; i++) {
+        if (uid[i] < 0x10) Serial.print("0");
+        Serial.print(uid[i], HEX);
+    }
+    Serial.println();
+}
+
+// Legacy functions (keeping for compatibility - now just reads card)
+bool isAuthorizedCard(String &cardUID) {
+    return readRFIDEntry(cardUID);
+}
+
+bool isAuthorizedCardEntry(String &cardUID) {
+    return readRFIDEntry(cardUID);
+}
+
+bool isAuthorizedCardExit(String &cardUID) {
+    return readRFIDExit(cardUID);
+}
