@@ -1,8 +1,9 @@
-
-
 #include <Arduino.h>
 #include <WiFi.h>
 #include <MQTT.h>
+#include <Arduino_JSON.h>
+#include "config.h"
+#include "motors/servo_control.h"
 
 extern WiFiClient net;
 extern MQTTClient client;
@@ -13,6 +14,4 @@ void connect();
 
 // MQTT message callback handler
 void messageReceived(String &topic, String &payload);
-
-// Gate timer management (call from main loop)
-void updateGateTimers();
+void PublishRFID(String cardUID,String topic);

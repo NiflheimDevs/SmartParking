@@ -1,9 +1,5 @@
 #include "sensors/ultrasonic_sensor.h"
 
-// Legacy single sensor variables
-int trigPin_;
-int echoPin_;
-
 // Multi-sensor arrays for parking system
 int trigPins[PARKING_SPACES];
 int echoPins[PARKING_SPACES];
@@ -18,15 +14,6 @@ const int ULTRASONIC_ECHO_PINS[PARKING_SPACES] = {
     ULTRASONIC_ECHO_PIN_0, ULTRASONIC_ECHO_PIN_1, ULTRASONIC_ECHO_PIN_2, ULTRASONIC_ECHO_PIN_3,
     ULTRASONIC_ECHO_PIN_4, ULTRASONIC_ECHO_PIN_5, ULTRASONIC_ECHO_PIN_6
 };
-
-// Legacy single sensor functions
-void setupUltrasonic(int trigPin, int echoPin) {
-    trigPin_ = trigPin;
-    echoPin_ = echoPin;
-    pinMode(trigPin_, OUTPUT);
-    pinMode(echoPin_, INPUT);
-}
-
 
 // Multi-sensor functions for parking system
 void setupAllUltrasonicSensors() {
@@ -70,23 +57,4 @@ bool isParkingSpaceOccupied(int spaceIndex) {
         return true;
     }
     return false;
-}
-
-bool areAllParkingSpacesOccupied() {
-    for (int i = 0; i < PARKING_SPACES; i++) {
-        if (!isParkingSpaceOccupied(i)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-int getAvailableParkingSpaces() {
-    int available = 0;
-    for (int i = 0; i < PARKING_SPACES; i++) {
-        if (!isParkingSpaceOccupied(i)) {
-            available++;
-        }
-    }
-    return available;
 }

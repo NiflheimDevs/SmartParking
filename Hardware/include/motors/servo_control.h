@@ -4,10 +4,7 @@
 
 #include <Arduino.h>
 #include <ESP32Servo.h>
-
-// Legacy function (keeping for compatibility)
-void setupServo(int pin);
-void setServoAngle(int angle);
+#include "config.h"
 
 // Separate entry and exit servo functions
 void setupEntryServo(int pin);
@@ -18,5 +15,7 @@ void openEntryGate();
 void closeEntryGate();
 void openExitGate();
 void closeExitGate();
+
+void updateGateTimers();
 
 #endif

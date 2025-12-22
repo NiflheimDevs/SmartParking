@@ -4,9 +4,8 @@
 #include "sensors/ultrasonic_sensor.h"
 #include "RFID/RFID_reader.h"
 #include "Led/Led.h"
-#include "mqtt_client.h"
+#include "MQTT/mqtt.h"
 #include "parking_monitor.h"
-#include <Arduino_JSON.h>
 
 
 void setup() {
@@ -19,12 +18,11 @@ void setup() {
     setupEntryServo(SERVO_ENTRY_PIN);
     setupExitServo(SERVO_EXIT_PIN);
    // setupAllUltrasonicSensors();
-    setupDualRFID();  // Initialize dual RFID readers (entry and exit)
+    setupDualRFID();
     //setupLEDStrip();
     initParkingMonitor();
     
     // Show system ready status
-    // showSystemStatus(true);
     Serial.println("Smart Parking System with " + String(PARKING_SPACES) + " spaces initialized ✅");
 }
 
@@ -43,34 +41,17 @@ void loop() {
     // Read Entry RFID reader and send via MQTT
     if (readRFIDEntry(cardUID)) 
     {
-        JSONVar jsonObj;
-        jsonObj["rfid"] = cardUID;
-        String jsonString = JSON.stringify(jsonObj);
-        client.publish("parking/entrance", jsonString.c_str());
-        Serial.print("Sent MQTT message: ");
-        Serial.println(jsonString);    
+        PublishRFID(cardUID,ENTRANCE_REQUEST_TOPIC);   
     }
 
     // Read Exit RFID reader and send via MQTT
     if (readRFIDExit(cardUID)) 
     {
-        JSONVar jsonObj;
-        jsonObj["rfid"] = cardUID;
-        String jsonString = JSON.stringify(jsonObj);
-        client.publish("parking/exit", jsonString.c_str());
-        Serial.print("Sent MQTT message: ");
-        Serial.println(jsonString);
+        PublishRFID(cardUID,EXIT_REQUEST_TOPIC);
     }
 
     // Update parking space monitoring (sends data to MQTT)
-   // updateParkingMonitor();
-    
-    //updateParkingSpaceLEDs();
-    
-    //if (areAllParkingSpacesOccupied()) 
-    //{
-      //  Serial.println("🚨 All parking spaces are occupied!");
-    //}
+    // updateParkingMonitor();    
 
     delay(SENSOR_READ_INTERVAL);
 }

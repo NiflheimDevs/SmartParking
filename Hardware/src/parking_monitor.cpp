@@ -1,7 +1,7 @@
 #include "parking_monitor.h"
 #include "config.h"
 #include "sensors/ultrasonic_sensor.h"
-#include "mqtt_client.h"
+#include "MQTT/mqtt.h"
 #include <Arduino_JSON.h>
 
 // Parking space monitoring variables

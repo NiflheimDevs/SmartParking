@@ -9,13 +9,13 @@
 #define PARKING_SPACES 7
 
 // Ultrasonic sensor pins for each parking space
-// Space 0: Pins 12, 14
-// Space 1: Pins 13, 15  
-// Space 2: Pins 16, 17
-// Space 3: Pins 18, 19
-// Space 4: Pins 22, 23
-// Space 5: Pins 25, 26
-// Space 6: Pins 27, 32
+// Space 0: Pins 13, 12
+// Space 1: Pins 14, 27  
+// Space 2: Pins 26, 25
+// Space 3: Pins 33, 32
+// Space 4: Pins 5, 17
+// Space 5: Pins 23, 22
+// Space 6: Pins 19, 18
 
 // Ultrasonic sensor pin configurations for 7 parking spaces
 #define ULTRASONIC_TRIG_PIN_0 13
@@ -52,13 +52,13 @@
 #define RFID_EXIT_SS_PIN  8
 #define RFID_EXIT_RST_PIN 47
 
-// Legacy support (keeping for compatibility)
-#define RFID_SS_PIN RFID_ENTRY_SS_PIN
-#define RFID_RST_PIN RFID_ENTRY_RST_PIN
-
 #define LED_PIN 48
 #define LED_COUNT 7
 #define LED_BRIGHTNESS 50
+#define COLOR_RED     0xFF0000
+#define COLOR_GREEN   0x00FF00
+#define COLOR_BLUE    0x0000FF
+#define COLOR_OFF     0x000000
 
 #define PARKING_THRESHOLD 17
 #define SERVO_OPEN_ANGLE 180
@@ -70,11 +70,17 @@ const char ssid[] = "NotParsaSn";
 const char pass[] = "Parsa138282";
 
 // MQTT Configuration
-#define MQTT_BROKER ""  // Change to your MQTT broker
+#define MQTT_BROKER "api.smartparking.niflheimsdevs.ir"
 #define MQTT_PORT 1883
 #define MQTT_CLIENT_ID "SmartParking_ESP32"
-#define MQTT_TOPIC_RFID "parking/entrance"
-#define MQTT_TOPIC_RESPONSE "parking/entrance/response"
-#define MQTT_API_ENDPOINT "api.smartparking.niflheimsdevs.ir"
+
+#define ENTRANCE_REQUEST_TOPIC "parking/entrance"
+#define ENTRANCE_RESPONSE_TOPIC "parking/entrance/response"
+#define EXIT_REQUEST_TOPIC "parking/exit"
+#define EXIT_RESPONSE_TOPIC "parking/exit/response"
+
+#define SPACE_TOPIC "parking/space"
+
+#define GATE_CONTROL_TOPIC "parking/gate/control"
 
 #endif
