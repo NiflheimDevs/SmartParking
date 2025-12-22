@@ -1,3 +1,14 @@
+#include <Arduino.h>
+
+
+#if ENABLE_RFID_SYSTEM
+    #define BOARD_NAME "ESP32-S3 Feather"
+#elif ENABLE_PARKING_MONITOR
+    #define BOARD_NAME "NodeMCU ESP32"
+#else
+    #error "No device role defined!"
+#endif
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
