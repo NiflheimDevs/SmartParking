@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <MQTT.h>
 #include <Arduino_JSON.h>
+#include "mesh/espnow_mesh.h"
 #include "config.h"
 #include "motors/servo_control.h"
 
@@ -15,3 +16,5 @@ void connect();
 // MQTT message callback handler
 void messageReceived(String &topic, String &payload);
 void PublishRFID(String cardUID,String topic);
+void PublishParkingSpace(String payload);
+void forwardESPNOWDataToMQTT(const char* data);  // Forward ESP-NOW data to MQTT

@@ -28,6 +28,12 @@ void connect() {
 
 bool initWiFi()
 {
+    // Only connect to WiFi/MQTT if device is AP
+    if (!isAPRole()) {
+        Serial.println("📱 Station role - Skipping WiFi/MQTT connection");
+        return false;
+    }
+    
     WiFi.begin(ssid, pass);
 
     client.begin(MQTT_BROKER,MQTT_PORT, net);
@@ -124,8 +130,59 @@ void messageReceived(String &topic, String &payload) {
 void PublishRFID(String cardUID,String topic) {
     JSONVar jsonObj;
     jsonObj["rfid"] = cardUID;
+    jsonObj["topic"] = topic;  // Include topic in message for forwarding
     String jsonString = JSON.stringify(jsonObj);
-    client.publish(topic, jsonString.c_str());
-    Serial.print("Sent MQTT message: ");
-    Serial.println(jsonString);
+    
+    if (isAPRole()) {
+        // We're AP, publish directly to MQTT
+        client.publish(topic, jsonString.c_str());
+        Serial.print("📤 Sent MQTT message: ");
+        Serial.println(jsonString);
+    } else {
+        // We're Station, send via ESP-NOW
+        sendDataViaMesh(jsonString.c_str());
+    }
+}
+
+void PublishParkingSpace(String payload) {
+    if (isAPRole()) {
+        // We're AP, publish directly to MQTT
+        client.publish(SPACE_TOPIC, payload.c_str());
+        Serial.print("📤 Sent MQTT message: ");
+        Serial.println(payload);
+    } else {
+        // We're Station, send via ESP-NOW
+        JSONVar jsonObj = JSON.parse(payload);
+        jsonObj["topic"] = SPACE_TOPIC;  // Include topic for forwarding
+        String jsonString = JSON.stringify(jsonObj);
+        sendDataViaMesh(jsonString.c_str());
+    }
+}
+
+void forwardESPNOWDataToMQTT(const char* data) {
+    if (!isAPRole()) return;
+    
+    // Parse the data to extract topic and payload
+    JSONVar jsonObj = JSON.parse(data);
+    
+    if (JSON.typeof(jsonObj) == "undefined") {
+        Serial.println("❌ Failed to parse ESP-NOW data");
+        return;
+    }
+    
+    String topic = (const char*)jsonObj["topic"];
+    if (topic.length() == 0) {
+        Serial.println("❌ No topic in ESP-NOW data");
+        return;
+    }
+    
+    // Remove topic from JSON before publishing
+    jsonObj["topic"] = nullptr; // Set to null to effectively remove from payload
+    String payload = JSON.stringify(jsonObj);
+    
+    client.publish(topic.c_str(), payload.c_str());
+    Serial.print("📤 Forwarded to MQTT [");
+    Serial.print(topic);
+    Serial.print("]: ");
+    Serial.println(payload);
 }

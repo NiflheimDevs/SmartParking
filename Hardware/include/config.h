@@ -94,4 +94,11 @@ const char pass[] = "Parsa138282";
 
 #define GATE_CONTROL_TOPIC "parking/gate/control"
 
+// ESP-NOW Mesh Configuration
+// Set the peer MAC address here (use 0xFF for broadcast discovery)
+// Format: {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX}
+// For initial setup, use broadcast {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
+// After first connection, update with actual peer MAC address
+#define PEER_MAC_ADDRESS {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
+
 #endif
