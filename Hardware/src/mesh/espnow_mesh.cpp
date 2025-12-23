@@ -12,6 +12,29 @@ static bool isWaitingForRSSIResponse = false;
 static unsigned long rssiRequestTime = 0;
 static const unsigned long RSSI_RESPONSE_TIMEOUT = 2000;  // 2 seconds timeout
 
+// Helper to add/update a peer with sane defaults
+static bool addPeer(const uint8_t* mac) {
+    esp_now_peer_info_t peerInfo{};
+    memcpy(peerInfo.peer_addr, mac, 6);
+    // channel 0 follows the current WiFi channel; otherwise fall back to ESPNOW_CHANNEL
+    peerInfo.channel = WiFi.isConnected() ? 0 : ESPNOW_CHANNEL;
+    peerInfo.encrypt = false;
+    peerInfo.ifidx = WIFI_IF_STA;
+
+    esp_now_del_peer(mac);  // OK if it was not present
+    if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+        Serial.println("❌ Failed to add peer");
+        return false;
+    }
+    Serial.print("✅ Peer configured: ");
+    for (int i = 0; i < 6; i++) {
+        Serial.printf("%02X", mac[i]);
+        if (i < 5) Serial.print(":");
+    }
+    Serial.println();
+    return true;
+}
+
 // Callback when data is sent
 void onDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
     Serial.print("📤 ESP-NOW Send Status: ");
@@ -39,6 +62,7 @@ void onDataRecv(const uint8_t* mac_addr, const uint8_t* incomingData, int len) {
     }
     if (!isBroadcast) {
         memcpy(peerMacAddress, mac_addr, 6);
+        addPeer(peerMacAddress);  // lock in unicast peer for future sends
     }
     
     // Handle RSSI check response
@@ -87,6 +111,8 @@ void initESPNOWMesh() {
     
     // Set device as WiFi Station
     WiFi.mode(WIFI_STA);
+    // Ensure we're on the expected ESPNOW channel before any WiFi connection
+    esp_wifi_set_channel(ESPNOW_CHANNEL, WIFI_SECOND_CHAN_NONE);
     
     // Initialize ESP-NOW
     if (esp_now_init() != ESP_OK) {
@@ -99,13 +125,7 @@ void initESPNOWMesh() {
     esp_now_register_recv_cb(onDataRecv);
     
     // Add peer (broadcast initially)
-    esp_now_peer_info_t peerInfo;
-    memcpy(peerInfo.peer_addr, peerMacAddress, 6);
-    peerInfo.channel = ESPNOW_CHANNEL;
-    peerInfo.encrypt = false;
-    
-    if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-        Serial.println("❌ Failed to add peer");
+    if (!addPeer(peerMacAddress)) {
         return;
     }
     
@@ -134,26 +154,7 @@ void printDeviceMAC() {
 
 void setPeerMacAddress(uint8_t* mac) {
     memcpy(peerMacAddress, mac, 6);
-    
-    // Remove old peer
-    esp_now_del_peer(peerMacAddress);
-    
-    // Add new peer
-    esp_now_peer_info_t peerInfo;
-    memcpy(peerInfo.peer_addr, peerMacAddress, 6);
-    peerInfo.channel = ESPNOW_CHANNEL;
-    peerInfo.encrypt = false;
-    
-    if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-        Serial.println("❌ Failed to update peer");
-    } else {
-        Serial.print("✅ Peer updated: ");
-        for (int i = 0; i < 6; i++) {
-            Serial.printf("%02X", peerMacAddress[i]);
-            if (i < 5) Serial.print(":");
-        }
-        Serial.println();
-    }
+    addPeer(peerMacAddress);
 }
 
 void checkRSSIAndSwitchRole() {
@@ -207,8 +208,13 @@ void checkRSSIAndSwitchRole() {
             }
         }
     } else {
-        Serial.println("⏱️ RSSI check timeout - keeping current role");
+        Serial.println("⏱️ RSSI check timeout");
         isWaitingForRSSIResponse = false;
+        // Ensure at least one device becomes AP so the network comes up
+        if (deviceId == 0 && currentRole != ROLE_AP) {
+            Serial.println("⚡ Forcing AP role (no peer response)");
+            switchToAPRole();
+        }
     }
     
     lastRSSICheck = millis();
@@ -225,6 +231,7 @@ void switchToAPRole() {
     extern void connect();
     initWiFi();
     connect();
+    addPeer(peerMacAddress);  // refresh peer to follow current WiFi channel
 }
 
 void switchToStationRole() {

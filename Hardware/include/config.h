@@ -2,7 +2,7 @@
 
 
 #if ENABLE_RFID_SYSTEM
-    #define BOARD_NAME "ESP32-S3 Feather"
+    #define BOARD_NAME "ESP32-S3"
 #elif ENABLE_PARKING_MONITOR
     #define BOARD_NAME "NodeMCU ESP32"
 #else
@@ -11,6 +11,15 @@
 
 #ifndef CONFIG_H
 #define CONFIG_H
+
+// Device Type (kept in sync with build_flags in platformio.ini)
+// Build flags define DEVICE_TYPE=DEVICE_ESP32_S3 or DEVICE_NODEMCU.
+// Provide both uppercase and legacy names so existing code keeps working.
+#define DEVICE_ESP32_S3 1
+#define DEVICE_NODEMCU 2
+#define Device_ESP32_S3 DEVICE_ESP32_S3
+#define Device_NODEMCU DEVICE_NODEMCU
+
 
 #define DEBUG true
 
@@ -77,11 +86,11 @@
 #define SENSOR_READ_INTERVAL 500
 #define GATE_OPEN_DURATION_MS 3000  // Gate stays open for 3 seconds
 
-const char ssid[] = "NotParsaSn";
-const char pass[] = "Parsa138282";
+const char ssid[] = "Saman's S24 Ultra";
+const char pass[] = "2334Saman92";
 
 // MQTT Configuration
-#define MQTT_BROKER "api.smartparking.niflheimsdevs.ir"
+#define MQTT_BROKER "api.smartparking.niflheimdevs.ir"
 #define MQTT_PORT 1883
 #define MQTT_CLIENT_ID "SmartParking_ESP32"
 
