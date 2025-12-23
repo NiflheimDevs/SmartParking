@@ -92,10 +92,32 @@ void messageReceived(String &topic, String &payload) {
         }
     }
     
-    // Handle control messages (if needed)
-    if (topic == GATE_CONTROL_TOPIC) {
-        Serial.println("🎛️ Control message received");
-        // Add control logic here if needed
+    // Handle control messages 
+    if (topic == GATE_CONTROL_TOPIC) {        
+        String gate = (const char*)response["gate"];
+        bool state = (bool)response["state"];
+        
+        Serial.println("  Gate: " + gate);
+        Serial.println("  State: " + String(state ? "open" : "close"));
+        
+        if (gate == "entrance") {
+            if (state) {
+                Serial.println("✅ Opening entrance gate");
+                openEntryGate();
+            } else {
+                Serial.println("🔒 Closing entrance gate");
+                closeEntryGate();
+            }
+        } 
+        else if (gate == "exit") {
+            if (state) {
+                Serial.println("✅ Opening exit gate");
+                openExitGate();
+            } else {
+                Serial.println("🔒 Closing exit gate");
+                closeExitGate();
+            }
+        } 
     }
 }
 

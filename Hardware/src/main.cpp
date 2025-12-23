@@ -1,9 +1,9 @@
 #include "config.h"
 
 #if DEVICE_TYPE == DEVICE_ESP32_S3
-  #include "esp32.h"
+  #include "esp32_s3.h"
 #elif DEVICE_TYPE == DEVICE_NODEMCU
-  #include "nodemcu.h"
+  #include "esp32.h"
 #endif
 
 void setup() {
