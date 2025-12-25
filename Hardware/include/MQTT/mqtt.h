@@ -8,6 +8,8 @@
 
 extern WiFiClient net;
 extern MQTTClient client;
+extern uint8_t getDeviceId();
+
 
 // Initialize WiFi connection
 bool initWiFi();

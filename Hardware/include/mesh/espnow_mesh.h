@@ -43,6 +43,7 @@ void switchToAPRole();
 void switchToStationRole();
 void updateMesh();  // Call this in loop() to handle periodic RSSI checks
 void printDeviceMAC();  // Print device MAC address for configuration
+uint8_t getDeviceId();  // Get device ID (0 = ESP32-S3, 1 = NodeMCU)
 
 #endif
 

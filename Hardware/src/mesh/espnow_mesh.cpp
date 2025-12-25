@@ -1,4 +1,6 @@
 #include "mesh/espnow_mesh.h"
+#include <Arduino_JSON.h>
+#include "motors/servo_control.h"
 
 // Global variables
 static DeviceRole currentRole = ROLE_STATION;  // Start as station, will be determined by RSSI
@@ -11,6 +13,12 @@ static int8_t ourRSSIValue = -100;
 static bool isWaitingForRSSIResponse = false;
 static unsigned long rssiRequestTime = 0;
 static const unsigned long RSSI_RESPONSE_TIMEOUT = 2000;  // 2 seconds timeout
+
+// ESP-NOW send flow control
+static bool isSending = false;
+static unsigned long lastSendTime = 0;
+static const unsigned long MIN_SEND_INTERVAL = 50;  // Minimum 50ms between sends
+static const unsigned long SEND_TIMEOUT = 500;  // 500ms timeout for send completion
 
 // Helper to add/update a peer with sane defaults
 static bool addPeer(const uint8_t* mac) {
@@ -37,6 +45,7 @@ static bool addPeer(const uint8_t* mac) {
 
 // Callback when data is sent
 void onDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
+    isSending = false;  // Mark send as complete
     Serial.print("📤 ESP-NOW Send Status: ");
     Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Failed");
 }
@@ -84,18 +93,133 @@ void onDataRecv(const uint8_t* mac_addr, const uint8_t* incomingData, int len) {
         response.deviceId = deviceId;
         ourRSSIValue = rssi;
         
-        esp_now_send(mac_addr, (uint8_t*)&response, sizeof(response));
-        Serial.print("📤 Sent RSSI response: ");
-        Serial.println(rssi);
+        // Wait for any pending send to complete (non-blocking with timeout)
+        unsigned long waitStart = millis();
+        while (isSending && (millis() - waitStart < 100)) {  // Shorter timeout for response
+            delay(5);
+        }
+        
+        // Ensure minimum interval
+        unsigned long timeSinceLastSend = millis() - lastSendTime;
+        if (timeSinceLastSend < MIN_SEND_INTERVAL) {
+            delay(MIN_SEND_INTERVAL - timeSinceLastSend);
+        }
+        
+        isSending = true;
+        lastSendTime = millis();
+        
+        esp_err_t result = esp_now_send(mac_addr, (uint8_t*)&response, sizeof(response));
+        if (result != ESP_OK) {
+            isSending = false;
+            Serial.println("❌ Failed to send RSSI response");
+        } else {
+            Serial.print("📤 Sent RSSI response: ");
+            Serial.println(rssi);
+        }
     }
     
-    // Handle data packet (forward to MQTT if we're AP)
-    if (myData->msgType == 1 && currentRole == ROLE_AP) {
+    // Handle data packet
+    if (myData->msgType == 1) {
         Serial.print("📨 Received data via ESP-NOW: ");
         Serial.println(myData->data);
-        // Forward to MQTT
-        extern void forwardESPNOWDataToMQTT(const char* data);
-        forwardESPNOWDataToMQTT(myData->data);
+        
+        if (currentRole == ROLE_AP) {
+            // We're AP (NodeMCU), forward ESP-NOW data from ESP32-S3 to MQTT
+            Serial.println("📡 AP role: Forwarding ESP-NOW data to MQTT");
+            extern void forwardESPNOWDataToMQTT(const char* data);
+            forwardESPNOWDataToMQTT(myData->data);
+        } else if (currentRole == ROLE_STATION) {
+            // We're Station (ESP32-S3), check if this is a forwarded MQTT message
+            // Parse the data to check if it contains topic and payload
+            JSONVar jsonObj = JSON.parse(myData->data);
+            
+            if (JSON.typeof(jsonObj) != "undefined") {
+                String topic = (const char*)jsonObj["topic"];
+                String payload = (const char*)jsonObj["payload"];
+                
+                // Check if this is one of the topics we need to handle
+                if (topic == GATE_CONTROL_TOPIC || topic == ENTRANCE_RESPONSE_TOPIC || topic == EXIT_RESPONSE_TOPIC) {
+                    Serial.print("📥 Received forwarded MQTT message: ");
+                    Serial.println(topic);
+                    
+                    // Parse the payload JSON
+                    JSONVar response = JSON.parse(payload);
+                    
+                    if (JSON.typeof(response) != "undefined") {
+                        // Handle entrance response
+                        if (topic == ENTRANCE_RESPONSE_TOPIC) {
+                            bool exists = (bool)response["exist"];
+                            String rfid = (const char*)response["rfid"];
+                            int parkingSpot = (int)response["parking_spot"];
+                            String error = (const char*)response["error"];
+                            
+                            Serial.println("🚪 Entrance Response (via ESP-NOW):");
+                            Serial.println("  RFID: " + rfid);
+                            Serial.println("  Exists: " + String(exists ? "true" : "false"));
+                            Serial.println("  Parking Spot: " + String(parkingSpot));
+                            
+                            if (exists) {
+                                Serial.println("✅ RFID authorized - Opening entry gate");
+                                openEntryGate();
+                            } else {
+                                Serial.println("❌ RFID not authorized: " + error);
+                                closeEntryGate();
+                            }
+                        }
+                        
+                        // Handle exit response
+                        if (topic == EXIT_RESPONSE_TOPIC) {
+                            bool exists = (bool)response["exist"];
+                            String rfid = (const char*)response["rfid"];
+                            String error = (const char*)response["error"];
+                            
+                            Serial.println("🚪 Exit Response (via ESP-NOW):");
+                            Serial.println("  RFID: " + rfid);
+                            Serial.println("  Exists: " + String(exists ? "true" : "false"));
+                            
+                            if (exists) {
+                                Serial.println("✅ RFID authorized - Opening exit gate");
+                                openExitGate();
+                            } else {
+                                Serial.println("❌ RFID not authorized: " + error);
+                                closeExitGate();
+                            }
+                        }
+                        
+                        // Handle gate control
+                        if (topic == GATE_CONTROL_TOPIC) {
+                            String gate = (const char*)response["gate"];
+                            bool state = (bool)response["state"];
+                            
+                            Serial.println("🎛️ Gate Control (via ESP-NOW):");
+                            Serial.println("  Gate: " + gate);
+                            Serial.println("  State: " + String(state ? "open" : "close"));
+                            
+                            if (gate == "entrance") {
+                                if (state) {
+                                    Serial.println("✅ Opening entrance gate");
+                                    openEntryGate();
+                                } else {
+                                    Serial.println("🔒 Closing entrance gate");
+                                    closeEntryGate();
+                                }
+                            } else if (gate == "exit") {
+                                if (state) {
+                                    Serial.println("✅ Opening exit gate");
+                                    openExitGate();
+                                } else {
+                                    Serial.println("🔒 Closing exit gate");
+                                    closeExitGate();
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Not a forwarded MQTT message, treat as regular data
+                    // (This handles the existing data forwarding from Station to AP)
+                }
+            }
+        }
     }
 }
 
@@ -172,10 +296,28 @@ void checkRSSIAndSwitchRole() {
     rssiRequest.deviceId = deviceId;
     ourRSSIValue = rssi;
     
+    // Wait for any pending send to complete
+    unsigned long waitStart = millis();
+    while (isSending && (millis() - waitStart < SEND_TIMEOUT)) {
+        delay(10);
+    }
+    
+    // Ensure minimum interval
+    unsigned long timeSinceLastSend = millis() - lastSendTime;
+    if (timeSinceLastSend < MIN_SEND_INTERVAL) {
+        delay(MIN_SEND_INTERVAL - timeSinceLastSend);
+    }
+    
+    isSending = true;
+    lastSendTime = millis();
     isWaitingForRSSIResponse = true;
     rssiRequestTime = millis();
     
-    esp_now_send(peerMacAddress, (uint8_t*)&rssiRequest, sizeof(rssiRequest));
+    esp_err_t result = esp_now_send(peerMacAddress, (uint8_t*)&rssiRequest, sizeof(rssiRequest));
+    if (result != ESP_OK) {
+        isSending = false;
+        Serial.println("❌ Failed to send RSSI request");
+    }
     
     // Wait for response (with timeout)
     unsigned long startWait = millis();
@@ -258,6 +400,22 @@ DeviceRole getCurrentRole() {
 void sendDataViaMesh(const char* data) {
     if (!meshInitialized) return;
     
+    // Wait for previous send to complete (with timeout)
+    unsigned long waitStart = millis();
+    while (isSending && (millis() - waitStart < SEND_TIMEOUT)) {
+        delay(10);
+    }
+    
+    // Ensure minimum interval between sends
+    unsigned long timeSinceLastSend = millis() - lastSendTime;
+    if (timeSinceLastSend < MIN_SEND_INTERVAL) {
+        delay(MIN_SEND_INTERVAL - timeSinceLastSend);
+    }
+    
+    // Mark as sending
+    isSending = true;
+    lastSendTime = millis();
+    
     struct_message message;
     message.msgType = 1;
     message.rssi = WiFi.RSSI();
@@ -265,13 +423,24 @@ void sendDataViaMesh(const char* data) {
     strncpy(message.data, data, sizeof(message.data) - 1);
     message.data[sizeof(message.data) - 1] = '\0';
     
-    esp_now_send(peerMacAddress, (uint8_t*)&message, sizeof(message));
-    Serial.print("📤 Sent via ESP-NOW: ");
-    Serial.println(data);
+    esp_err_t result = esp_now_send(peerMacAddress, (uint8_t*)&message, sizeof(message));
+    
+    if (result != ESP_OK) {
+        isSending = false;  // Reset flag on error
+        Serial.print("❌ ESP-NOW Send Error: ");
+        Serial.println(result);
+    } else {
+        Serial.print("📤 Queued ESP-NOW send: ");
+        Serial.println(data);
+    }
 }
 
 int8_t getRSSI() {
     return WiFi.RSSI();
+}
+
+uint8_t getDeviceId() {
+    return deviceId;
 }
 
 // Function to update mesh (call this in loop)

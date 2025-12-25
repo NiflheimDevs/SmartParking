@@ -56,7 +56,22 @@ void messageReceived(String &topic, String &payload) {
         return;
     }
     
-    // Handle entrance response
+    // Forward MQTT messages to ESP32-S3 via ESP-NOW when NodeMCU is AP
+    // Forward these topics: GATE_CONTROL_TOPIC, ENTRANCE_RESPONSE_TOPIC, EXIT_RESPONSE_TOPIC
+    if (isAPRole() && getDeviceId() == 1 && (topic == GATE_CONTROL_TOPIC || topic == ENTRANCE_RESPONSE_TOPIC || topic == EXIT_RESPONSE_TOPIC)) {
+        // Create JSON with topic and payload for forwarding
+        JSONVar forwardData;
+        forwardData["topic"] = topic;
+        forwardData["payload"] = payload;
+        String forwardString = JSON.stringify(forwardData);
+        
+        extern void sendDataViaMesh(const char* data);
+        sendDataViaMesh(forwardString.c_str());
+        Serial.print("📡 Forwarded MQTT message to ESP32-S3 via ESP-NOW: ");
+        Serial.println(topic);
+    }
+    
+    // Handle entrance response (only if we're ESP32-S3, which would be AP in this case)
     if (topic == ENTRANCE_RESPONSE_TOPIC) {
         bool exists = (bool)response["exist"];
         String rfid = (const char*)response["rfid"];
@@ -78,7 +93,7 @@ void messageReceived(String &topic, String &payload) {
         }
     }
     
-    // Handle exit response
+    // Handle exit response (only if we're ESP32-S3, which would be AP in this case)
     if (topic == EXIT_RESPONSE_TOPIC) {
         bool exists = (bool)response["exist"];
         String rfid = (const char*)response["rfid"];
@@ -98,7 +113,7 @@ void messageReceived(String &topic, String &payload) {
         }
     }
     
-    // Handle control messages 
+    // Handle control messages (only if we're ESP32-S3, which would be AP in this case)
     if (topic == GATE_CONTROL_TOPIC) {        
         String gate = (const char*)response["gate"];
         bool state = (bool)response["state"];
@@ -139,7 +154,9 @@ void PublishRFID(String cardUID,String topic) {
         Serial.print("📤 Sent MQTT message: ");
         Serial.println(jsonString);
     } else {
-        // We're Station, send via ESP-NOW
+        // We're Station (ESP32-S3), send via ESP-NOW to NodeMCU (AP)
+        Serial.print("📡 Station role: Sending RFID data via ESP-NOW to AP: ");
+        Serial.println(jsonString);
         sendDataViaMesh(jsonString.c_str());
     }
 }
