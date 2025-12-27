@@ -71,75 +71,7 @@ void messageReceived(String &topic, String &payload) {
         Serial.println(topic);
     }
     
-    // Handle entrance response (only if we're ESP32-S3, which would be AP in this case)
-    if (topic == ENTRANCE_RESPONSE_TOPIC) {
-        bool exists = (bool)response["exist"];
-        String rfid = (const char*)response["rfid"];
-        int parkingSpot = (int)response["parking_spot"];
-        String error = (const char*)response["error"];
-        
-        Serial.println("🚪 Entrance Response:");
-        Serial.println("  RFID: " + rfid);
-        Serial.println("  Exists: " + String(exists ? "true" : "false"));
-        Serial.println("  Parking Spot: " + String(parkingSpot));
-        
-        if (exists) {
-            Serial.println("✅ RFID authorized - Opening entry gate");
-            openEntryGate();
-        } else {
-            Serial.println("❌ RFID not authorized: " + error);
-            // Gate remains closed
-            closeEntryGate();
-        }
-    }
-    
-    // Handle exit response (only if we're ESP32-S3, which would be AP in this case)
-    if (topic == EXIT_RESPONSE_TOPIC) {
-        bool exists = (bool)response["exist"];
-        String rfid = (const char*)response["rfid"];
-        String error = (const char*)response["error"];
-        
-        Serial.println("🚪 Exit Response:");
-        Serial.println("  RFID: " + rfid);
-        Serial.println("  Exists: " + String(exists ? "true" : "false"));
-        
-        if (exists) {
-            Serial.println("✅ RFID authorized - Opening exit gate");
-            openExitGate();
-        } else {
-            Serial.println("❌ RFID not authorized: " + error);
-            // Gate remains closed
-            closeExitGate();
-        }
-    }
-    
-    // Handle control messages (only if we're ESP32-S3, which would be AP in this case)
-    if (topic == GATE_CONTROL_TOPIC) {        
-        String gate = (const char*)response["gate"];
-        bool state = (bool)response["state"];
-        
-        Serial.println("  Gate: " + gate);
-        Serial.println("  State: " + String(state ? "open" : "close"));
-        
-        if (gate == "entrance") {
-            if (state) {
-                Serial.println("✅ Opening entrance gate");
-                openEntryGate();
-            } else {
-                Serial.println("🔒 Closing entrance gate");
-                closeEntryGate();
-            }
-        } 
-        else if (gate == "exit") {
-            if (state) {
-                Serial.println("✅ Opening exit gate");
-                openExitGate();
-            } else {
-                Serial.println("🔒 Closing exit gate");
-                closeExitGate();
-            }
-        } 
-    }
+    handleResponses(topic, response);
 }
 
 void PublishRFID(String cardUID,String topic) {

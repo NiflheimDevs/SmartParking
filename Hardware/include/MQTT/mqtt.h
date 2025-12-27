@@ -1,10 +1,9 @@
-#include <Arduino.h>
 #include <WiFi.h>
 #include <MQTT.h>
 #include <Arduino_JSON.h>
 #include "mesh/espnow_mesh.h"
 #include "config.h"
-#include "motors/servo_control.h"
+#include "MQTT/mqtt_handler.h"
 
 extern WiFiClient net;
 extern MQTTClient client;

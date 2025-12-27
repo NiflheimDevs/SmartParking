@@ -1,5 +1,4 @@
 #include "esp32_s3.h"
-#include "mesh/espnow_mesh.h"
 
 void setupS3(){
     Serial.begin(115200);

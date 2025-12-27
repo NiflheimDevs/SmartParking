@@ -1,5 +1,4 @@
 #include "esp32.h"
-#include "mesh/espnow_mesh.h"
 
 // Parking space monitoring variables
 static int currentParkingSpaceIndex = 0;

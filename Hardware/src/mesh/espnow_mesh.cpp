@@ -1,6 +1,4 @@
 #include "mesh/espnow_mesh.h"
-#include <Arduino_JSON.h>
-#include "motors/servo_control.h"
 
 // Global variables
 static DeviceRole currentRole = ROLE_STATION;  // Start as station, will be determined by RSSI
@@ -134,88 +132,9 @@ void onDataRecv(const uint8_t* mac_addr, const uint8_t* incomingData, int len) {
             if (JSON.typeof(jsonObj) != "undefined") {
                 String topic = (const char*)jsonObj["topic"];
                 String payload = (const char*)jsonObj["payload"];
+                JSONVar response = JSON.parse(payload);
                 
-                // Check if this is one of the topics we need to handle
-                if (topic == GATE_CONTROL_TOPIC || topic == ENTRANCE_RESPONSE_TOPIC || topic == EXIT_RESPONSE_TOPIC) {
-                    Serial.print("📥 Received forwarded MQTT message: ");
-                    Serial.println(topic);
-                    
-                    // Parse the payload JSON
-                    JSONVar response = JSON.parse(payload);
-                    
-                    if (JSON.typeof(response) != "undefined") {
-                        // Handle entrance response
-                        if (topic == ENTRANCE_RESPONSE_TOPIC) {
-                            bool exists = (bool)response["exist"];
-                            String rfid = (const char*)response["rfid"];
-                            int parkingSpot = (int)response["parking_spot"];
-                            String error = (const char*)response["error"];
-                            
-                            Serial.println("🚪 Entrance Response (via ESP-NOW):");
-                            Serial.println("  RFID: " + rfid);
-                            Serial.println("  Exists: " + String(exists ? "true" : "false"));
-                            Serial.println("  Parking Spot: " + String(parkingSpot));
-                            
-                            if (exists) {
-                                Serial.println("✅ RFID authorized - Opening entry gate");
-                                openEntryGate();
-                            } else {
-                                Serial.println("❌ RFID not authorized: " + error);
-                                closeEntryGate();
-                            }
-                        }
-                        
-                        // Handle exit response
-                        if (topic == EXIT_RESPONSE_TOPIC) {
-                            bool exists = (bool)response["exist"];
-                            String rfid = (const char*)response["rfid"];
-                            String error = (const char*)response["error"];
-                            
-                            Serial.println("🚪 Exit Response (via ESP-NOW):");
-                            Serial.println("  RFID: " + rfid);
-                            Serial.println("  Exists: " + String(exists ? "true" : "false"));
-                            
-                            if (exists) {
-                                Serial.println("✅ RFID authorized - Opening exit gate");
-                                openExitGate();
-                            } else {
-                                Serial.println("❌ RFID not authorized: " + error);
-                                closeExitGate();
-                            }
-                        }
-                        
-                        // Handle gate control
-                        if (topic == GATE_CONTROL_TOPIC) {
-                            String gate = (const char*)response["gate"];
-                            bool state = (bool)response["state"];
-                            
-                            Serial.println("🎛️ Gate Control (via ESP-NOW):");
-                            Serial.println("  Gate: " + gate);
-                            Serial.println("  State: " + String(state ? "open" : "close"));
-                            
-                            if (gate == "entrance") {
-                                if (state) {
-                                    Serial.println("✅ Opening entrance gate");
-                                    openEntryGate();
-                                } else {
-                                    Serial.println("🔒 Closing entrance gate");
-                                    closeEntryGate();
-                                }
-                            } else if (gate == "exit") {
-                                if (state) {
-                                    Serial.println("✅ Opening exit gate");
-                                    openExitGate();
-                                } else {
-                                    Serial.println("🔒 Closing exit gate");
-                                    closeExitGate();
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // Not a forwarded MQTT message, treat as regular data
-                    // (This handles the existing data forwarding from Station to AP)
-                }
+                handleResponses(topic, response);
             }
         }
     }

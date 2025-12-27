@@ -1,13 +1,13 @@
 #ifndef ESPNOW_MESH_H
 #define ESPNOW_MESH_H
 
-#include <Arduino.h>
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include "mesh/espnow_mesh.h"
 #include "config.h"
 #include "MQTT/mqtt.h"
+#include "MQTT/mqtt_handler.h"
+#include <Arduino_JSON.h>
 
 
 // ESP-NOW Mesh Configuration

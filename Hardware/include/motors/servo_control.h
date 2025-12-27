@@ -2,7 +2,6 @@
 
 #define SERVO_CONTROL_H
 
-#include <Arduino.h>
 #include <ESP32Servo.h>
 #include "config.h"
 

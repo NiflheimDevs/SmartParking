@@ -1,7 +1,6 @@
 #ifndef LED_H
 #define LED_H
 
-#include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "config.h"
 #include "sensors/ultrasonic_sensor.h"
