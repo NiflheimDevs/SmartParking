@@ -9,5 +9,6 @@ void setupLEDStrip();
 
 // Update all parking space LEDs: red if occupied, green if empty
 void updateParkingSpaceLEDs();
+void updateParkingSpaceStatus(int spaceIndex, bool occupied);
 
 #endif

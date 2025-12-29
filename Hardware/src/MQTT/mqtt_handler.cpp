@@ -10,6 +10,9 @@ void handleResponses(String topic, JSONVar response) {
     else if (topic == GATE_CONTROL_TOPIC) {
         handleGateControl(response);
     }
+    else if (topic == SPACE_TOPIC) {
+        handleParkingSpaceResponse(response);
+    }
     else {
         Serial.println("❌ Unknown topic in response handler: " + topic);
     }
@@ -80,4 +83,17 @@ void handleGateControl(JSONVar response) {
             closeExitGate();
         }
     } 
+}
+
+void handleParkingSpaceResponse(JSONVar response) {
+    // Currently no specific handling for parking space responses
+    Serial.println("ℹParking Space Response received");
+    String space = (const char*)response["space"];
+    bool occupied = (bool)response["occupied"];
+    Serial.println("  Space: " + space);
+    Serial.println("  Occupied: " + String(occupied ? "true" : "false"));
+
+    // Update LED status for the parking space
+    int spaceIndex = space.substring(1).toInt() - 1; // Assuming space format is "P1", "P2", etc.
+    updateParkingSpaceStatus(spaceIndex, occupied);
 }

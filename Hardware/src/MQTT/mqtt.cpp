@@ -12,7 +12,7 @@ void connect() {
     }
   
     Serial.print("\nconnecting...");
-    while (!client.connect(MQTT_CLIENT_ID) )
+    while (!client.connect(BOARD_NAME) )
     {
       Serial.print(".");
       delay(1000);
@@ -23,17 +23,11 @@ void connect() {
     client.subscribe(ENTRANCE_RESPONSE_TOPIC);   
     client.subscribe(EXIT_RESPONSE_TOPIC);
     client.subscribe(GATE_CONTROL_TOPIC);
-  
+    client.subscribe(SPACE_TOPIC);
 }
 
 bool initWiFi()
-{
-    // Only connect to WiFi/MQTT if device is AP
-    if (!isAPRole()) {
-        Serial.println("📱 Station role - Skipping WiFi/MQTT connection");
-        return false;
-    }
-    
+{   
     WiFi.begin(ssid, pass);
 
     client.begin(MQTT_BROKER,MQTT_PORT, net);
@@ -56,21 +50,6 @@ void messageReceived(String &topic, String &payload) {
         return;
     }
     
-    // Forward MQTT messages to ESP32-S3 via ESP-NOW when NodeMCU is AP
-    // Forward these topics: GATE_CONTROL_TOPIC, ENTRANCE_RESPONSE_TOPIC, EXIT_RESPONSE_TOPIC
-    if (isAPRole() && getDeviceId() == 1 && (topic == GATE_CONTROL_TOPIC || topic == ENTRANCE_RESPONSE_TOPIC || topic == EXIT_RESPONSE_TOPIC)) {
-        // Create JSON with topic and payload for forwarding
-        JSONVar forwardData;
-        forwardData["topic"] = topic;
-        forwardData["payload"] = payload;
-        String forwardString = JSON.stringify(forwardData);
-        
-        extern void sendDataViaMesh(const char* data);
-        sendDataViaMesh(forwardString.c_str());
-        Serial.print("📡 Forwarded MQTT message to ESP32-S3 via ESP-NOW: ");
-        Serial.println(topic);
-    }
-    
     handleResponses(topic, response);
 }
 
@@ -80,32 +59,15 @@ void PublishRFID(String cardUID,String topic) {
     jsonObj["topic"] = topic;  // Include topic in message for forwarding
     String jsonString = JSON.stringify(jsonObj);
     
-    if (isAPRole()) {
-        // We're AP, publish directly to MQTT
-        client.publish(topic, jsonString.c_str());
-        Serial.print("📤 Sent MQTT message: ");
-        Serial.println(jsonString);
-    } else {
-        // We're Station (ESP32-S3), send via ESP-NOW to NodeMCU (AP)
-        Serial.print("📡 Station role: Sending RFID data via ESP-NOW to AP: ");
-        Serial.println(jsonString);
-        sendDataViaMesh(jsonString.c_str());
-    }
+    client.publish(topic, jsonString.c_str());
+    Serial.print("📤 Sent MQTT message: ");
+    Serial.println(jsonString);
 }
 
 void PublishParkingSpace(String payload) {
-    if (isAPRole()) {
-        // We're AP, publish directly to MQTT
-        client.publish(SPACE_TOPIC, payload.c_str());
-        Serial.print("📤 Sent MQTT message: ");
-        Serial.println(payload);
-    } else {
-        // We're Station, send via ESP-NOW
-        JSONVar jsonObj = JSON.parse(payload);
-        jsonObj["topic"] = SPACE_TOPIC;  // Include topic for forwarding
-        String jsonString = JSON.stringify(jsonObj);
-        sendDataViaMesh(jsonString.c_str());
-    }
+    client.publish(SPACE_TOPIC, payload.c_str());
+    Serial.print("📤 Sent MQTT message: ");
+    Serial.println(payload);
 }
 
 void forwardESPNOWDataToMQTT(const char* data) {

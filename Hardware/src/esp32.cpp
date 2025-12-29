@@ -12,17 +12,8 @@ void initParkingMonitor() {
     Serial.begin(115200);
     delay(200);
 
-    // Initialize ESP-NOW mesh first
-    initESPNOWMesh();
-    
-    // Wait a bit for mesh to initialize
-    delay(1000);
-    
-    // Initialize WiFi/MQTT only if we're AP
-    if (isAPRole()) {
-        initWiFi();
-        connect();   // MQTT
-    }
+    initWiFi();
+    connect();   // MQTT
 
     setupAllUltrasonicSensors();
 
@@ -47,7 +38,7 @@ void sendParkingSpaceData(int spaceIndex) {
         json["occupied"] = isOccupied;
 
         String payload = JSON.stringify(json);
-        PublishParkingSpace(payload);  // This handles AP vs Station routing
+        client.publish("parking/space", payload.c_str());
 
         previousOccupancyState[spaceIndex] = isOccupied;
         spaceInitialized[spaceIndex] = true;
@@ -57,15 +48,9 @@ void sendParkingSpaceData(int spaceIndex) {
 }
 
 void updateParkingMonitor() {
-    // Update mesh (handles RSSI checks every 5 minutes)
-    updateMesh();
-    
-    // Handle WiFi/MQTT reconnection if we're AP
-    if (isAPRole()) {
-        client.loop();
-        if (!client.connected()) {
-            connect();
-        }
+    client.loop();
+    if (!client.connected()) {
+        connect();
     }
 
     if (millis() - lastParkingSpaceCheck >= PARKING_SPACE_CHECK_INTERVAL) {

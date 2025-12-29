@@ -3,18 +3,9 @@
 void setupS3(){
     Serial.begin(115200);
     delay(200);
-
-    // Initialize ESP-NOW mesh first
-    initESPNOWMesh();
     
-    // Wait a bit for mesh to initialize
-    delay(1000);
-    
-    // Initialize WiFi/MQTT only if we're AP
-    if (isAPRole()) {
-        initWiFi();
-        connect();   // MQTT
-    }
+    initWiFi();
+    connect();   // MQTT
 
     setupEntryServo(SERVO_ENTRY_PIN);
     setupExitServo(SERVO_EXIT_PIN);
@@ -26,16 +17,10 @@ void setupS3(){
 
 void Monitor(){
     String cardUID;
-
-    // Update mesh (handles RSSI checks every 5 minutes)
-    updateMesh();
     
-    // Handle WiFi/MQTT reconnection if we're AP
-    if (isAPRole()) {
-        client.loop();
-        if (!client.connected()) {
-            connect();
-        }
+    client.loop();
+    if (!client.connected()) {
+        connect();
     }
 
     updateGateTimers();
