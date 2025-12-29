@@ -34,11 +34,11 @@ void sendParkingSpaceData(int spaceIndex) {
         previousOccupancyState[spaceIndex] != isOccupied) {
 
         JSONVar json;
-        json["space"] = "P" + String(spaceIndex + 1);
-        json["occupied"] = isOccupied;
+        json["space_number"] = "P" + String(spaceIndex + 1);
+        json["is_occupied"] = isOccupied;
 
         String payload = JSON.stringify(json);
-        client.publish("parking/space", payload.c_str());
+        PublishParkingSpace(payload);
 
         previousOccupancyState[spaceIndex] = isOccupied;
         spaceInitialized[spaceIndex] = true;

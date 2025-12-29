@@ -88,12 +88,12 @@ void handleGateControl(JSONVar response) {
 void handleParkingSpaceResponse(JSONVar response) {
     // Currently no specific handling for parking space responses
     Serial.println("ℹParking Space Response received");
-    String space = (const char*)response["space"];
-    bool occupied = (bool)response["occupied"];
+    String space = (const char*)response["space_number"];
+    bool occupied = (bool)response["is_occupied"];
     Serial.println("  Space: " + space);
     Serial.println("  Occupied: " + String(occupied ? "true" : "false"));
 
     // Update LED status for the parking space
-    int spaceIndex = space.substring(1).toInt() - 1; // Assuming space format is "P1", "P2", etc.
+    int spaceIndex = space.substring(1).toInt() - 1;
     updateParkingSpaceStatus(spaceIndex, occupied);
 }
