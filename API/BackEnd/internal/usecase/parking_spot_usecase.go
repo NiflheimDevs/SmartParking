@@ -41,11 +41,13 @@ func (uc *ParkingSpotUseCase) List() ([]dto.ParkingSpotDTO, error) {
 		psdto.IsOccupied = ps.IsOccupied
 		if ps.IsOccupied {
 			vehicle, ee, err := uc.EntranceExitUseCase.FindParkedVehicle(ps.ID)
-			if err != nil {
-				return nil, err
+			if err == nil {
+				psdto.Vehicle = vehicle
+				psdto.EntranceTime = &ee.EntranceTime
+			} else {
+				psdto.Vehicle = nil
+				psdto.EntranceTime = nil
 			}
-			psdto.Vehicle = vehicle
-			psdto.EntranceTime = &ee.EntranceTime
 		} else {
 			psdto.Vehicle = nil
 			psdto.EntranceTime = nil
