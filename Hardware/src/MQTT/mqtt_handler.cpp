@@ -37,15 +37,15 @@ void handleEntranceResponse(JSONVar response) {
 }
 
 void handleExitResponse(JSONVar response) {
-    bool exists = (bool)response["exist"];
+    String price = (const char*)response["price"];
     String rfid = (const char*)response["rfid"];
     String error = (const char*)response["error"];
     
     Serial.println("🚪 Exit Response:");
     Serial.println("  RFID: " + rfid);
-    Serial.println("  Exists: " + String(exists ? "true" : "false"));
+
     
-    if (exists) {
+    if (error == "") {
         Serial.println("✅ RFID authorized - Opening exit gate");
         openExitGate();
     } else {

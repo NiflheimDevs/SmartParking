@@ -19,6 +19,7 @@ void setupS3(){
     setupEntryServo(SERVO_ENTRY_PIN);
     setupExitServo(SERVO_EXIT_PIN);
     setupDualRFID();
+    setupLEDStrip();
 
     Serial.println("🚗 ESP32-S3 RFID Controller Ready");
 }
@@ -46,6 +47,8 @@ void Monitor(){
     if (readRFIDExit(cardUID)) {
         PublishRFID(cardUID, EXIT_REQUEST_TOPIC);
     }
+
+    updateParkingSpaceLEDs();
 
     delay(SENSOR_READ_INTERVAL);
 }

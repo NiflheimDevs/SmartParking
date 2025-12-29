@@ -17,7 +17,8 @@ void setupLEDStrip() {
 void updateParkingSpaceLEDs() {
     // Update each LED based on parking space occupancy
     for (int i = 0; i < PARKING_SPACES && i < LED_COUNT; i++) {
-        bool isOccupied = isParkingSpaceOccupied(i);
+        //bool isOccupied = isParkingSpaceOccupied(i);
+        bool isOccupied = false;
         uint32_t color = isOccupied ? COLOR_RED : COLOR_GREEN;
         strip.setPixelColor(i, color);
     }

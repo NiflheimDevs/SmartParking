@@ -40,13 +40,13 @@ void closeEntryGate() {
 }
 
 void openExitGate() {
-    setExitServoAngle(SERVO_OPEN_ANGLE);
+    setExitServoAngle(SERVO_CLOSED_ANGLE);
     exitGateOpen = true;
     exitGateOpenTime = millis();
 }
 
 void closeExitGate() {
-    setExitServoAngle(SERVO_CLOSED_ANGLE);
+    setExitServoAngle(SERVO_OPEN_ANGLE);
     exitGateOpen = false;
 }
 
