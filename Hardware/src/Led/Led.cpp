@@ -30,3 +30,9 @@ void updateParkingSpaceStatus(int spaceIndex, bool occupied) {
     if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES) return;
     parkingSpaceOccupied[spaceIndex] = occupied;
 }
+
+void setParkingSpaceLED(int spaceIndex, uint32_t color) {
+    if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES || spaceIndex >= LED_COUNT) return;
+    strip.setPixelColor(spaceIndex, color);
+    strip.show();
+}

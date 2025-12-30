@@ -32,6 +32,13 @@ void handleEntranceResponse(JSONVar response) {
     if (exists) {
         Serial.println("✅ RFID authorized - Opening entry gate");
         openEntryGate();
+        
+        // Light the suggested parking spot blue
+        if (parkingSpot > 0) {
+            int spaceIndex = parkingSpot - 1; // Convert to 0-based index
+            Serial.println("💡 Suggesting parking space " + String(parkingSpot) + " (LED " + String(spaceIndex) + ")");
+            setParkingSpaceLED(spaceIndex, COLOR_BLUE);
+        }
     } else {
         Serial.println("❌ RFID not authorized: " + error);
         // Gate remains closed
@@ -96,4 +103,8 @@ void handleParkingSpaceResponse(JSONVar response) {
     // Update LED status for the parking space
     int spaceIndex = space.substring(1).toInt() - 1;
     updateParkingSpaceStatus(spaceIndex, occupied);
+    
+    // Update only the changed parking space LED: red if occupied, green if empty
+    // uint32_t color = occupied ? COLOR_RED : COLOR_GREEN;
+    // setParkingSpaceLED(spaceIndex, color);
 }
