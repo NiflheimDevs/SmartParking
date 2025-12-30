@@ -64,7 +64,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 		log.Printf("Can't Parse JSON")
 		resp := EnterResponsePayload{RFID: "", ParkingSpot: 0, Exist: false, Error: err.Error()}
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -76,7 +76,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 		log.Printf("Error in check RFID")
 		resp.Error = err.Error()
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -86,7 +86,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 		resp.Exist = false
 		resp.Error = "RFID doesn't Exists"
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -96,7 +96,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 		log.Printf("No Free Space")
 		resp.Error = err.Error()
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -106,7 +106,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 		log.Printf("Error on Enter to parking")
 		resp.Error = err.Error()
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -116,7 +116,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 	resp.ParkingSpot = int(spot.ID - 1)
 	resp.Error = ""
 	if b, mErr := json.Marshal(resp); mErr == nil {
-		h.Publish(topic, 0, false, b)
+		h.Publish(topic, 2, false, b)
 	}
 }
 
@@ -128,7 +128,7 @@ func (h *SensorHandler) OnExit(msg mqtt.Message) {
 		log.Printf("Can't Parse JSON")
 		resp := ExitRespnsePayload{RFID: "", Price: 0, Error: err.Error()}
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -140,7 +140,7 @@ func (h *SensorHandler) OnExit(msg mqtt.Message) {
 		log.Printf("Error in check RFID")
 		resp.Error = err.Error()
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -149,7 +149,7 @@ func (h *SensorHandler) OnExit(msg mqtt.Message) {
 		log.Printf("RFID doesn't exist")
 		resp.Error = "RFID doesn't Exists"
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -159,7 +159,7 @@ func (h *SensorHandler) OnExit(msg mqtt.Message) {
 		log.Printf("Error on exit")
 		resp.Error = err.Error()
 		if b, mErr := json.Marshal(resp); mErr == nil {
-			h.Publish(topic, 0, false, b)
+			h.Publish(topic, 2, false, b)
 		}
 		return
 	}
@@ -167,7 +167,7 @@ func (h *SensorHandler) OnExit(msg mqtt.Message) {
 	resp.Price = price
 	resp.Error = ""
 	if b, mErr := json.Marshal(resp); mErr == nil {
-		h.Publish(topic, 0, false, b)
+		h.Publish(topic, 2, false, b)
 	}
 }
 
@@ -202,7 +202,7 @@ func (h *SensorHandler) Gate(gate string, state bool) {
 	topic := "parking/gate/control"
 	payload := GatePayload{Gate: gate, State: state}
 	if b, mErr := json.Marshal(payload); mErr == nil {
-		h.Publish(topic, 0, false, b)
+		h.Publish(topic, 2, false, b)
 	} else {
 		log.Println(mErr.Error())
 	}
