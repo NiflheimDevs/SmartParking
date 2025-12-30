@@ -107,4 +107,5 @@ void handleParkingSpaceResponse(JSONVar response) {
     // Update only the changed parking space LED: red if occupied, green if empty
     // uint32_t color = occupied ? COLOR_RED : COLOR_GREEN;
     // setParkingSpaceLED(spaceIndex, color);
+    updateParkingSpaceLEDs();
 }

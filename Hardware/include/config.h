@@ -72,7 +72,7 @@
 #define RFID_EXIT_SS_PIN  8
 #define RFID_EXIT_RST_PIN 47
 
-#define LED_PIN 7
+#define LED_PIN 15
 #define LED_COUNT 7
 #define LED_BRIGHTNESS 50
 #define COLOR_RED     0xFF0000

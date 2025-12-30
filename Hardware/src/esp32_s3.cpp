@@ -33,7 +33,7 @@ void Monitor(){
         PublishRFID(cardUID, EXIT_REQUEST_TOPIC);
     }
 
-    updateParkingSpaceLEDs();
+    //updateParkingSpaceLEDs();
 
     delay(SENSOR_READ_INTERVAL);
 }

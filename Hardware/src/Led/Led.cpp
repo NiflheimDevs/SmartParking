@@ -12,6 +12,9 @@ void setupLEDStrip() {
     strip.begin();
     strip.setBrightness(LED_BRIGHTNESS);
     strip.clear();
+    for (int i = 0; i < PARKING_SPACES && i < LED_COUNT; i++) {
+        strip.setPixelColor(i, COLOR_GREEN);
+    }
     strip.show();
     Serial.println("LED Strip initialized with " + String(LED_COUNT) + " LEDs");
 }
@@ -33,6 +36,6 @@ void updateParkingSpaceStatus(int spaceIndex, bool occupied) {
 
 void setParkingSpaceLED(int spaceIndex, uint32_t color) {
     if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES || spaceIndex >= LED_COUNT) return;
-    strip.setPixelColor(spaceIndex, color);
+    strip.setPixelColor(6-spaceIndex, color);
     strip.show();
 }
