@@ -59,13 +59,13 @@ void PublishRFID(String cardUID,String topic) {
     jsonObj["topic"] = topic;  // Include topic in message for forwarding
     String jsonString = JSON.stringify(jsonObj);
     
-    client.publish(topic, jsonString.c_str());
+    client.publish(topic, jsonString.c_str(), true, 2);
     Serial.print("📤 Sent MQTT message: ");
     Serial.println(jsonString);
 }
 
 void PublishParkingSpace(String payload) {
-    client.publish(SPACE_TOPIC, payload.c_str());
+    client.publish(SPACE_TOPIC, payload.c_str(), true, 2);
     Serial.print("📤 Sent MQTT message: ");
     Serial.println(payload);
 }
