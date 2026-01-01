@@ -42,6 +42,7 @@ type EnterResponsePayload struct {
 	RFID        string `json:"rfid"`
 	ParkingSpot int    `json:"parking_spot"`
 	Exist       bool   `json:"exist"`
+	OwnerName   string `json:"owner"`
 	Error       string `json:"error"`
 }
 
@@ -91,6 +92,8 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 		return
 	}
 
+	vehicle, _ := h.VehicleUseCase.VehicleInfoRFID(p.RFID)
+
 	spot, err := h.ParkingSpotUseCase.FindFree()
 	if err != nil {
 		log.Printf("No Free Space")
@@ -114,6 +117,7 @@ func (h *SensorHandler) OnEntrance(msg mqtt.Message) {
 	log.Printf("ALL IS GOOD")
 	resp.Exist = true
 	resp.ParkingSpot = int(spot.ID - 1)
+	resp.OwnerName = vehicle.OwnerName
 	resp.Error = ""
 	if b, mErr := json.Marshal(resp); mErr == nil {
 		h.Publish(topic, 2, false, b)
