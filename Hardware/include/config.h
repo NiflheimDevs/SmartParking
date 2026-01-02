@@ -59,7 +59,7 @@
 #define ULTRASONIC_TRIG_PIN_6 19
 #define ULTRASONIC_ECHO_PIN_6 18
 
-// SPI Pins for RFID readers
+// SPI Pins for RFID readers and TFT
 #define SPI_SCK_PIN  36
 #define SPI_MISO_PIN 37
 #define SPI_MOSI_PIN 35
@@ -71,6 +71,12 @@
 // Exit RFID reader pins
 #define RFID_EXIT_SS_PIN  8
 #define RFID_EXIT_RST_PIN 47
+
+// TFT pins
+#define TFT_CS 1
+#define TFT_DC 2
+#define TFT_RST 15
+
 
 #define LED_PIN 15
 #define LED_COUNT 7

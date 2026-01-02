@@ -29,20 +29,25 @@ void handleEntranceResponse(JSONVar response) {
     Serial.println("  Exists: " + String(exists ? "true" : "false"));
     Serial.println("  Parking Spot: " + String(parkingSpot));
     
+    // Notify display manager of RFID activity
+    //notifyRFIDActivity();
+    
     if (exists) {
         Serial.println("✅ RFID authorized - Opening entry gate");
         openEntryGate();
         
-        // Light the suggested parking spot blue
+        // Show welcome message and parking slot on LCD and update LED 
         if (parkingSpot > 0) {
+            showRFIDAuthorized(parkingSpot);
             int spaceIndex = parkingSpot - 1; // Convert to 0-based index
             Serial.println("💡 Suggesting parking space " + String(parkingSpot) + " (LED " + String(spaceIndex) + ")");
             setParkingSpaceLED(spaceIndex, COLOR_BLUE);
-        }
+        } 
     } else {
         Serial.println("❌ RFID not authorized: " + error);
         // Gate remains closed
         closeEntryGate();
+        showRFIDNotAuthorized();
     }
 }
 
@@ -55,13 +60,18 @@ void handleExitResponse(JSONVar response) {
     Serial.println("  RFID: " + rfid);
 
     
+    // Notify display manager of RFID activity
+    //notifyRFIDActivity();
+    
     if (error == "") {
         Serial.println("✅ RFID authorized - Opening exit gate");
         openExitGate();
+        showExitPrice(price);
     } else {
         Serial.println("❌ RFID not authorized: " + error);
         // Gate remains closed
         closeExitGate();
+        showRFIDNotAuthorized();
     }
 }
 
@@ -100,7 +110,7 @@ void handleParkingSpaceResponse(JSONVar response) {
     Serial.println("  Space: " + space);
     Serial.println("  Occupied: " + String(occupied ? "true" : "false"));
 
-    // Update LED status for the parking space
+    // Update LED and LCD status for the parking space
     int spaceIndex = space.substring(1).toInt() - 1;
     updateParkingSpaceStatus(spaceIndex, occupied);
     
