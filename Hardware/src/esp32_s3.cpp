@@ -11,10 +11,7 @@ void setupS3(){
     setupExitServo(SERVO_EXIT_PIN);
     setupDualRFID();
     setupLEDStrip();
-    setupLCD();
 
-    initLCDDisplayManager();
-    
     Serial.println("🚗 ESP32-S3 RFID Controller Ready");
 }
 
@@ -30,16 +27,11 @@ void Monitor(){
 
     if (readRFIDEntry(cardUID)) {
         PublishRFID(cardUID, ENTRANCE_REQUEST_TOPIC);
-        notifyRFIDActivity();
     }
 
     if (readRFIDExit(cardUID)) {
         PublishRFID(cardUID, EXIT_REQUEST_TOPIC);
-        notifyRFIDActivity();
     }
-
-    // Update LCD display manager (handles idle state transitions)
-    updateLCDDisplayManager();
 
     //updateParkingSpaceLEDs();
 

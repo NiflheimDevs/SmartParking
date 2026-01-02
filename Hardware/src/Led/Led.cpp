@@ -39,8 +39,3 @@ void setParkingSpaceLED(int spaceIndex, uint32_t color) {
     strip.setPixelColor(6-spaceIndex, color);
     strip.show();
 }
-
-bool getParkingSpaceStatus(int spaceIndex) {
-    if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES) return false;
-    return parkingSpaceOccupied[spaceIndex];
-}

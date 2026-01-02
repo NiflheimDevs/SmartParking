@@ -14,7 +14,4 @@ void updateParkingSpaceStatus(int spaceIndex, bool occupied);
 // Set a specific parking space LED to a specific color (for suggestions)
 void setParkingSpaceLED(int spaceIndex, uint32_t color);
 
-// Get parking space status
-bool getParkingSpaceStatus(int spaceIndex);
-
 #endif
