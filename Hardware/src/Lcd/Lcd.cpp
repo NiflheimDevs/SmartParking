@@ -18,7 +18,7 @@ void clearScreen() {
 }
 
 void showStartupScreen() {
-   // clearScreen();
+    clearScreen();
     delay(300);
     tft.setTextSize(2);
     tft.setTextColor(WHITE);
@@ -27,7 +27,7 @@ void showStartupScreen() {
 }
 
 void showEntranceAuthorized(int parkingSpot) {
-    //clearScreen();
+    clearScreen();
     tft.setTextSize(2);
     tft.setTextColor(GREEN);
     
@@ -41,14 +41,14 @@ void showEntranceAuthorized(int parkingSpot) {
 }
 
 void showEntranceUnauthorized() {
-    //clearScreen();
+    clearScreen();
     tft.setTextSize(1);
     tft.setTextColor(RED);
     printCenter("Not authorized");
 }
 
 void showExitAuthorized(String price) {
-   // clearScreen();
+    clearScreen();
     tft.setTextSize(2);
     tft.setTextColor(GREEN);
     
@@ -63,7 +63,7 @@ void showExitAuthorized(String price) {
 }
 
 void showExitUnauthorized() {
-  //  clearScreen();
+    clearScreen();
     tft.setTextSize(1);
     tft.setTextColor(RED);
     printCenter("Not authorized");

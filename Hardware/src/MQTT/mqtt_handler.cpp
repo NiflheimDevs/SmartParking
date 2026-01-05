@@ -34,7 +34,7 @@ void handleEntranceResponse(JSONVar response) {
         openEntryGate();
         
         // Display welcome message with parking space
-        //showEntranceAuthorized(parkingSpot);
+        showEntranceAuthorized(parkingSpot);
         
         // Light the suggested parking spot blue
         if (parkingSpot > 0) {
@@ -46,7 +46,7 @@ void handleEntranceResponse(JSONVar response) {
     } else {
         Serial.println("❌ RFID not authorized: " + error);
         // Display not authorized message
-       // showEntranceUnauthorized();
+       showEntranceUnauthorized();
         // Gate remains closed
         closeEntryGate();
     }
@@ -66,11 +66,11 @@ void handleExitResponse(JSONVar response) {
         openExitGate();
         
         // Display price and goodbye message
-        //  showExitAuthorized(price);
+        showExitAuthorized(price);
     } else {
         Serial.println("❌ RFID not authorized: " + error);
         // Display not authorized message
-        //  showExitUnauthorized();
+        showExitUnauthorized();
         // Gate remains closed
         closeExitGate();
     }

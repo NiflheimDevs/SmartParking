@@ -12,6 +12,7 @@ void setupS3(){
     setupDualRFID();
     setupLEDStrip();
     setupLCD();
+    delay(5000);
 
     Serial.println("🚗 ESP32-S3 RFID Controller Ready");
 }
