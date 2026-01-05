@@ -31,7 +31,7 @@ void updateParkingSpaceLEDs() {
 
 void updateParkingSpaceStatus(int spaceIndex, bool occupied) {
     if (spaceIndex < 0 || spaceIndex >= PARKING_SPACES) return;
-    parkingSpaceOccupied[spaceIndex] = occupied;
+    parkingSpaceOccupied[6-spaceIndex] = occupied;
 }
 
 void setParkingSpaceLED(int spaceIndex, uint32_t color) {
