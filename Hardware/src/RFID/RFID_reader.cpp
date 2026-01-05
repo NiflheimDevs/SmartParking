@@ -1,5 +1,6 @@
 #include "RFID/RFID_reader.h"
 
+//SPIClass spi_rfid(1);
 // Dual reader instances
 MFRC522 rfidEntry(RFID_ENTRY_SS_PIN, RFID_ENTRY_RST_PIN);
 MFRC522 rfidExit(RFID_EXIT_SS_PIN, RFID_EXIT_RST_PIN);
@@ -8,8 +9,7 @@ MFRC522 rfidExit(RFID_EXIT_SS_PIN, RFID_EXIT_RST_PIN);
 void setupDualRFID() {
     Serial.println("\n🔍 Initializing SPI bus and RC522 modules...");
 
-    // Initialize SPI bus with custom pins
-    SPI.begin(SPI_SCK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);
+    SPI.begin(SPI_SCK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);    // Initialize SPI bus with custom pins
 
     // Initialize both readers
     rfidEntry.PCD_Init();

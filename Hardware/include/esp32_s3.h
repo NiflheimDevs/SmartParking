@@ -7,6 +7,8 @@
 #include "Led/Led.h"
 #include "MQTT/mqtt.h"
 #include "mesh/espnow_mesh.h"
+#include "Lcd/Lcd.h"
+
 
 void setupS3();
 void Monitor();

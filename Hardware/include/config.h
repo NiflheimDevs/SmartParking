@@ -59,18 +59,28 @@
 #define ULTRASONIC_TRIG_PIN_6 19
 #define ULTRASONIC_ECHO_PIN_6 18
 
-// SPI Pins for RFID readers
+// SPI Pins for RFID readers and TFT
 #define SPI_SCK_PIN  36
 #define SPI_MISO_PIN 37
 #define SPI_MOSI_PIN 35
 
 // Entry RFID reader pins
-#define RFID_ENTRY_SS_PIN  11
+#define RFID_ENTRY_SS_PIN  41
 #define RFID_ENTRY_RST_PIN 47
 
 // Exit RFID reader pins
 #define RFID_EXIT_SS_PIN  8
 #define RFID_EXIT_RST_PIN 47
+
+// TFT pins
+#define TFT_CS 1
+#define TFT_DC 2
+#define TFT_RST 16
+
+#define SPI_TFT_SCK_PIN  12
+#define SPI_TFT_MISO_PIN 13
+#define SPI_TFT_MOSI_PIN 11
+
 
 #define LED_PIN 15
 #define LED_COUNT 7
@@ -80,7 +90,7 @@
 #define COLOR_BLUE    0x0000FF
 #define COLOR_OFF     0x000000
 
-#define PARKING_THRESHOLD 17
+#define PARKING_THRESHOLD 15
 #define SERVO_OPEN_ANGLE 180
 #define SERVO_CLOSED_ANGLE 0
 #define SENSOR_READ_INTERVAL 500
