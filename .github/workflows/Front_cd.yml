@@ -3,8 +3,7 @@ name: Front_CD
 on:
   push:
     branches:
-    #   - main
-    - Front/Hardware
+      - main
     paths:
       - "FrontEnd/**"
 
