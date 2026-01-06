@@ -1,0 +1,54 @@
+name: Front_CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "FrontEnd/**"
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PAT }}
+
+      - name: Build and Push Frontend Docker Image
+        working-directory: FrontEnd
+        run: |
+          docker compose build
+          docker compose push
+      
+      - name: Copy docker-compose
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "FrontEnd/docker-compose.yml"
+          target: "/home/ubuntu/SmartParking"
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /home/ubuntu/SmartParking/FrontEnd
+            docker compose pull
+            docker compose down --remove-orphans
+            docker compose up -d
+            docker image prune -f    

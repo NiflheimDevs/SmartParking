@@ -1,31 +1,23 @@
-#include <Arduino.h>
 #include "config.h"
-#include "motors/servo_control.h"
-#include "sensors/ultrasonic_sensor.h"
-#include "RFID/RFID_reader.h"
+
+#if DEVICE_TYPE == DEVICE_ESP32_S3
+  #include "esp32_s3.h"
+#elif DEVICE_TYPE == DEVICE_NODEMCU
+  #include "esp32.h"
+#endif
 
 void setup() {
-    Serial.begin(115200);
-    setupServo(SERVO_PIN);
-    setupUltrasonic(ULTRASONIC_TRIG_PIN, ULTRASONIC_ECHO_PIN);
-    setupRFID(RFID_SS_PIN, RFID_RST_PIN);
-    Serial.println("System initialized ✅");
+#if DEVICE_TYPE == DEVICE_ESP32_S3
+    setupS3();                 // RFID + gates + TFT
+#elif DEVICE_TYPE == DEVICE_NODEMCU
+    initParkingMonitor();      // Sensors only
+#endif
 }
 
 void loop() {
-    float distance = getDistance();
-    String cardUID;
-
-    if (isAuthorizedCard(cardUID)) {
-        Serial.println("Gate opening...");
-        setServoAngle(SERVO_OPEN_ANGLE);
-        delay(3000);
-        setServoAngle(SERVO_CLOSED_ANGLE);
-    }
-
-    if (distance < PARKING_THRESHOLD) {
-        Serial.println("🚗 Vehicle detected!");
-    }
-
-    delay(SENSOR_READ_INTERVAL);
+#if DEVICE_TYPE == DEVICE_ESP32_S3
+    Monitor();                 // RFID + MQTT
+#elif DEVICE_TYPE == DEVICE_NODEMCU
+    updateParkingMonitor();    // Sensors + MQTT
+#endif
 }

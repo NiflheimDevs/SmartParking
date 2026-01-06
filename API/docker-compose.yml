@@ -38,14 +38,13 @@ services:
       context: ./BackEnd
       dockerfile: dockerfile
     image: ghcr.io/niflheimdevs/smartparking
-    container_name: application
+    container_name: Backend
     restart: unless-stopped
     depends_on:
       - postgres
       - emqx
     ports:
       - "8080:8080"
-
 volumes:
   pgdata:
   redisdata:
