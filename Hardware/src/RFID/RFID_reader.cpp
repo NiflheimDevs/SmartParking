@@ -1,33 +1,63 @@
 #include "RFID/RFID_reader.h"
 
-MFRC522 mfrc522;
+//SPIClass spi_rfid(1);
+// Dual reader instances
+MFRC522 rfidEntry(RFID_ENTRY_SS_PIN, RFID_ENTRY_RST_PIN);
+MFRC522 rfidExit(RFID_EXIT_SS_PIN, RFID_EXIT_RST_PIN);
 
-void setupRFID(int ssPin, int rstPin) {
-    SPI.begin();
-    mfrc522.PCD_Init(ssPin, rstPin);
-    Serial.println("RFID reader initialized.");
+// Setup dual RFID readers with custom SPI pins
+void setupDualRFID() {
+    Serial.println("\n🔍 Initializing SPI bus and RC522 modules...");
+
+    SPI.begin(SPI_SCK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);    // Initialize SPI bus with custom pins
+
+    // Initialize both readers
+    rfidEntry.PCD_Init();
+    rfidExit.PCD_Init();
+    
+    // Check versions
+    checkReader(rfidEntry, "Entry RFID Reader");
+    checkReader(rfidExit, "Exit RFID Reader");
+
+    Serial.println("📡 Both RFID Readers Ready.\n");
 }
 
-bool isAuthorizedCard(String &cardUID) {
-    if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
-        return false;
-    }
 
-    cardUID = "";
-    for (byte i = 0; i < mfrc522.uid.size; i++) {
-        cardUID += String(mfrc522.uid.uidByte[i], HEX);
-    }
-
-    cardUID.toUpperCase();
-
-    String authorizedCards[] = {"A1B2C3D4", "F1E2D3C4"};
-    for (auto &auth : authorizedCards) {
-        if (cardUID == auth) {
-            Serial.println("✅ Authorized card detected: " + cardUID);
-            return true;
+bool readRFIDEntry(String &cardUID) {
+    if (rfidEntry.PICC_IsNewCardPresent() && rfidEntry.PICC_ReadCardSerial()) {
+        // Convert UID to string
+        cardUID = "";
+        for (byte i = 0; i < rfidEntry.uid.size; i++) {
+            if (rfidEntry.uid.uidByte[i] < 0x10) cardUID += "0";
+            cardUID += String(rfidEntry.uid.uidByte[i], HEX);
         }
+        cardUID.toUpperCase();
+        rfidEntry.PICC_HaltA();
+        return true;
     }
-
-    Serial.println("❌ Unauthorized card: " + cardUID);
     return false;
+}
+
+bool readRFIDExit(String &cardUID) {
+    if (rfidExit.PICC_IsNewCardPresent() && rfidExit.PICC_ReadCardSerial()) {
+        // Convert UID to string
+        cardUID = "";
+        for (byte i = 0; i < rfidExit.uid.size; i++) {
+            if (rfidExit.uid.uidByte[i] < 0x10) cardUID += "0";
+            cardUID += String(rfidExit.uid.uidByte[i], HEX);
+        }
+        cardUID.toUpperCase();
+        rfidExit.PICC_HaltA();
+        return true;
+    }
+    return false;
+}
+
+void checkReader(MFRC522 &reader, const char* name) {
+    byte version = reader.PCD_ReadRegister(reader.VersionReg);
+    if (version == 0x00 || version == 0xFF) {
+        Serial.println("⚠️ " + String(name) + " not found or communication failure");
+    } else {
+        Serial.println("✅ " + String(name) + " detected (Version: 0x" + String(version, HEX) + ")");
+    }
 }
