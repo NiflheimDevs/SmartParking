@@ -7,6 +7,7 @@
 package di
 
 import (
+	redis2 "github.com/go-redis/redis/v8"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
@@ -14,7 +15,8 @@ import (
 	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
 	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
 	"github.com/niflheimdevs/smartparking/internal/middleware"
-	"github.com/niflheimdevs/smartparking/internal/repository"
+	repository "github.com/niflheimdevs/smartparking/internal/repository/postgres"
+	"github.com/niflheimdevs/smartparking/internal/repository/redis"
 	"github.com/niflheimdevs/smartparking/internal/usecase"
 	"gorm.io/gorm"
 )
@@ -23,7 +25,7 @@ import (
 
 func InitializeApp() (*App, error) {
 	configConfig := config.Load()
-	gormDB := db.Connect(configConfig)
+	gormDB := db.PGConnect(configConfig)
 	vehicleRepository := repository.NewVehicleRepository(gormDB)
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
 	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
@@ -48,8 +50,17 @@ func InitializeApp() (*App, error) {
 		Gate:         gateHandler,
 	}
 	jwtMiddleware := middleware.NewJWTMiddleware(jwt)
+	banRepository := repository.NewBanRepository(gormDB)
+	banUseCase := usecase.NewBanUseCase(banRepository)
+	ipBanMiddleware := middleware.NewIPBanMiddleware(banUseCase)
+	redisClient := db.RConnect(configConfig)
+	loggerRepository := redis.NewLoggerRepository(redisClient)
+	ipLoggerUseCase := usecase.NewIPLoggerUseCase(loggerRepository, banUseCase)
+	ipLoggerMiddleware := middleware.NewIPLoggerMiddleware(ipLoggerUseCase)
 	middlewares := &http.Middlewares{
-		JWT: jwtMiddleware,
+		JWT:      jwtMiddleware,
+		Ban:      ipBanMiddleware,
+		IPLogger: ipLoggerMiddleware,
 	}
 	httpApp := http.NewHttpApp(configConfig, handlers, middlewares)
 	mqttClient := mqtt.InitMQTT(client, sensorHandler)
@@ -57,7 +68,8 @@ func InitializeApp() (*App, error) {
 		HttpApp:    httpApp,
 		MQTTClient: mqttClient,
 		Config:     configConfig,
-		DB:         gormDB,
+		PGDB:       gormDB,
+		RDB:        redisClient,
 	}
 	return app, nil
 }
@@ -68,5 +80,6 @@ type App struct {
 	HttpApp    *http.HTTPApp
 	MQTTClient *mqtt.MQTTClient
 	Config     *config.Config
-	DB         *gorm.DB
+	PGDB       *gorm.DB
+	RDB        *redis2.Client
 }
