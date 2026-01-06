@@ -69,31 +69,3 @@ void PublishParkingSpace(String payload) {
     Serial.print("📤 Sent MQTT message: ");
     Serial.println(payload);
 }
-
-void forwardESPNOWDataToMQTT(const char* data) {
-    if (!isAPRole()) return;
-    
-    // Parse the data to extract topic and payload
-    JSONVar jsonObj = JSON.parse(data);
-    
-    if (JSON.typeof(jsonObj) == "undefined") {
-        Serial.println("❌ Failed to parse ESP-NOW data");
-        return;
-    }
-    
-    String topic = (const char*)jsonObj["topic"];
-    if (topic.length() == 0) {
-        Serial.println("❌ No topic in ESP-NOW data");
-        return;
-    }
-    
-    // Remove topic from JSON before publishing
-    jsonObj["topic"] = nullptr; // Set to null to effectively remove from payload
-    String payload = JSON.stringify(jsonObj);
-    
-    client.publish(topic.c_str(), payload.c_str());
-    Serial.print("📤 Forwarded to MQTT [");
-    Serial.print(topic);
-    Serial.print("]: ");
-    Serial.println(payload);
-}

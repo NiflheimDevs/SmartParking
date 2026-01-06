@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <WiFi.h>
@@ -94,7 +95,7 @@ void drawSpaceBox(int index, bool occupied, int x, int y) {
 // =====================
 void handleEntrance(JSONVar json) {
     clearScreen();
-    bool authorized = json.hasOwnProperty("exist") && bool(json["exist"]) && String(json["error"]) == "";
+    bool authorized = json.hasOwnProperty("exist") && bool(json["exist"]) && (const char*)(json["error"]) == "";
 
     if (!authorized) {
         showCentered("UNAUTHORIZED", ST77XX_RED, 2, tft.height()/2 - 10);
@@ -106,17 +107,19 @@ void handleEntrance(JSONVar json) {
     tft.setTextColor(ST77XX_WHITE);
     tft.setTextSize(1);
     tft.setCursor(10, 40);
-    tft.print("Owner: " + String(json["owner"]));
+    tft.print("Owner: ");
+    tft.print((const char*)json["owner"]);
 
     tft.setCursor(10, 60);
-    tft.print("Spot: " + String(int(json["parking_spot"])));
+    tft.print("Spot: ");
+    tft.print((int)json["parking_spot"]);
     lastSpaceUpdate = millis(); 
 
 }
 
 void handleExit(JSONVar json) {
     clearScreen();
-    bool authorized = String(json["error"]) == "";
+    bool authorized = (const char*)(json["error"]) == "";
 
     if (!authorized) {
         showCentered("UNAUTHORIZED", ST77XX_RED, 2, tft.height()/2 - 10);
@@ -136,7 +139,7 @@ void handleExit(JSONVar json) {
 void handleGate(JSONVar json) {
     clearScreen();
 
-    String gateName = String(json["gate"]);
+    String gateName = (const char*)(json["gate"]);
     bool stateBool = bool(json["state"]);
     String stateStr = stateBool ? "OPEN" : "CLOSED";
     uint16_t stateColor = stateBool ? ST77XX_GREEN : ST77XX_RED;
@@ -151,7 +154,7 @@ void handleGate(JSONVar json) {
 // Parking Space Updates
 // =====================
 void handleSpace(JSONVar json) {
-    String spaceNumber = String(json["space_number"]); 
+    String spaceNumber = (const char*)(json["space_number"]); 
     bool occupied = bool(json["is_occupied"]);
 
     if (spaceNumber.length() < 2) return;

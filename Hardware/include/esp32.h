@@ -4,7 +4,6 @@
 #include "config.h"
 #include "sensors/ultrasonic_sensor.h"
 #include "MQTT/mqtt.h"
-#include "mesh/espnow_mesh.h"
 #include <Arduino_JSON.h>
 
 void initParkingMonitor();
