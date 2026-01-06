@@ -1,15 +1,18 @@
 services:
-  mosquitto:
-    image: eclipse-mosquitto:latest
-    container_name: mosquitto
+  emqx:
+    image: emqx/emqx:latest
+    container_name: emqx
     restart: unless-stopped
     ports:
-      - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
+      - "1883:1883"     # MQTT broker port
+      - "8083:8083"     # MQTT over WebSocket
+      - "18083:18083"   # EMQX dashboard
+    environment:
+      - EMQX_NAME=emqx
+      - EMQX_HOST=node1.emqx.io
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=2004@Saman
+
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -21,6 +24,15 @@ services:
     volumes:
       - ./BackEnd/internal/db/migration/init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - pgdata:/var/lib/postgresql
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    volumes:
+      - redisdata:/data
+    command: redis-server --save 60 1 --loglevel warning
+
   app:
     build:
       context: ./BackEnd
@@ -30,7 +42,9 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
+      - emqx
     ports:
       - "8080:8080"
 volumes:
   pgdata:
+  redisdata:

@@ -7,22 +7,25 @@
 package di
 
 import (
+	redis2 "github.com/go-redis/redis/v8"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	"github.com/niflheimdevs/smartparking/internal/db"
 	"github.com/niflheimdevs/smartparking/internal/delivery/http"
-	"github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
+	http_handler "github.com/niflheimdevs/smartparking/internal/delivery/http/handler"
 	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt"
-	"github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
-	"github.com/niflheimdevs/smartparking/internal/repository"
+	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
+	"github.com/niflheimdevs/smartparking/internal/middleware"
+	repository "github.com/niflheimdevs/smartparking/internal/repository/postgres"
+	"github.com/niflheimdevs/smartparking/internal/repository/redis"
 	"github.com/niflheimdevs/smartparking/internal/usecase"
 	"gorm.io/gorm"
 )
 
-// Injectors from wire_http.go:
+// Injectors from wire.go:
 
-func InitializeHttpApp() (*http.App, error) {
+func InitializeApp() (*App, error) {
 	configConfig := config.Load()
-	gormDB := db.Connect(configConfig)
+	gormDB := db.PGConnect(configConfig)
 	vehicleRepository := repository.NewVehicleRepository(gormDB)
 	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
 	vehicleHandler := http_handler.NewVehicleHandler(vehicleUseCase)
@@ -30,22 +33,53 @@ func InitializeHttpApp() (*http.App, error) {
 	entranceExitUseCase := usecase.NewEntranceExitUseCase(configConfig, entranceExitRepository, vehicleUseCase)
 	entranceExitHandler := http_handler.NewEntranceExitHandler(entranceExitUseCase)
 	parkingSpotRepository := repository.NewParkingSpotRepository(gormDB)
-	parkingSpotUseCase := usecase.NewParkingSpotUseCase(parkingSpotRepository)
+	parkingSpotUseCase := usecase.NewParkingSpotUseCase(entranceExitUseCase, parkingSpotRepository)
 	parkingSpotHandler := http_handler.NewParkingSpotHandler(parkingSpotUseCase)
-	app := http.NewHttpApp(configConfig, gormDB, vehicleHandler, entranceExitHandler, parkingSpotHandler)
+	userRepository := repository.NewUserRepository(gormDB)
+	jwt := usecase.NewJWT(configConfig)
+	userUseCase := usecase.NewUserUseCase(userRepository, jwt)
+	userHandler := http_handler.NewUserHandler(userUseCase)
+	client := mqtt.InitMQTTClient(configConfig)
+	sensorHandler := mqtt_handler.NewSensorHandler(client, entranceExitUseCase, parkingSpotUseCase, vehicleUseCase)
+	gateHandler := http_handler.NewGateHandler(sensorHandler)
+	handlers := &http.Handlers{
+		Vehicle:      vehicleHandler,
+		EntranceExit: entranceExitHandler,
+		ParkingSpot:  parkingSpotHandler,
+		User:         userHandler,
+		Gate:         gateHandler,
+	}
+	jwtMiddleware := middleware.NewJWTMiddleware(jwt)
+	banRepository := repository.NewBanRepository(gormDB)
+	banUseCase := usecase.NewBanUseCase(banRepository)
+	ipBanMiddleware := middleware.NewIPBanMiddleware(banUseCase)
+	redisClient := db.RConnect(configConfig)
+	loggerRepository := redis.NewLoggerRepository(redisClient)
+	ipLoggerUseCase := usecase.NewIPLoggerUseCase(loggerRepository, banUseCase)
+	ipLoggerMiddleware := middleware.NewIPLoggerMiddleware(ipLoggerUseCase)
+	middlewares := &http.Middlewares{
+		JWT:      jwtMiddleware,
+		Ban:      ipBanMiddleware,
+		IPLogger: ipLoggerMiddleware,
+	}
+	httpApp := http.NewHttpApp(configConfig, handlers, middlewares)
+	mqttClient := mqtt.InitMQTT(client, sensorHandler)
+	app := &App{
+		HttpApp:    httpApp,
+		MQTTClient: mqttClient,
+		Config:     configConfig,
+		PGDB:       gormDB,
+		RDB:        redisClient,
+	}
 	return app, nil
 }
 
-// Injectors from wire_mqtt.go:
+// wire.go:
 
-func InitializeMQTTApp(cfg *config.Config, db2 *gorm.DB) (*mqtt.MQTTClient, error) {
-	entranceExitRepository := repository.NewEntranceExitRepository(db2)
-	vehicleRepository := repository.NewVehicleRepository(db2)
-	vehicleUseCase := usecase.NewVehicleUseCase(vehicleRepository)
-	entranceExitUseCase := usecase.NewEntranceExitUseCase(cfg, entranceExitRepository, vehicleUseCase)
-	parkingSpotRepository := repository.NewParkingSpotRepository(db2)
-	parkingSpotUseCase := usecase.NewParkingSpotUseCase(parkingSpotRepository)
-	sensorHandler := mqtt_handler.NewSensorHandler(entranceExitUseCase, parkingSpotUseCase, vehicleUseCase)
-	mqttClient := mqtt.InitMQTT(cfg, sensorHandler)
-	return mqttClient, nil
+type App struct {
+	HttpApp    *http.HTTPApp
+	MQTTClient *mqtt.MQTTClient
+	Config     *config.Config
+	PGDB       *gorm.DB
+	RDB        *redis2.Client
 }

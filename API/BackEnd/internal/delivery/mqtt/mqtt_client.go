@@ -6,17 +6,14 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/niflheimdevs/smartparking/internal/config"
 	mqtt_handler "github.com/niflheimdevs/smartparking/internal/delivery/mqtt/handler"
-	"gorm.io/gorm"
 )
 
 type MQTTClient struct {
 	client  mqtt.Client
 	Handler *mqtt_handler.SensorHandler
-	Config  *config.Config
-	DB      *gorm.DB
 }
 
-func InitMQTT(cfg *config.Config, handler *mqtt_handler.SensorHandler) *MQTTClient {
+func InitMQTTClient(cfg *config.Config) mqtt.Client {
 	opts := mqtt.NewClientOptions().
 		AddBroker(cfg.MQTT.Broker).
 		SetClientID(cfg.MQTT.ClientID)
@@ -26,13 +23,17 @@ func InitMQTT(cfg *config.Config, handler *mqtt_handler.SensorHandler) *MQTTClie
 		log.Fatalf("MQTT connection failed: %v", token.Error())
 	}
 
-	return &MQTTClient{client: client, Handler: handler, Config: cfg}
+	return client
+}
+
+func InitMQTT(client mqtt.Client, handler *mqtt_handler.SensorHandler) *MQTTClient {
+	return &MQTTClient{client: client, Handler: handler}
 }
 
 func (m *MQTTClient) Listen() {
 	m.client.Subscribe("parking/entrance", 0, func(c mqtt.Client, msg mqtt.Message) {
 		if m.Handler != nil {
-			m.Handler.OnEntrance(c, msg)
+			m.Handler.OnEntrance(msg)
 			return
 		}
 		log.Println("Entrance detected (no handler):", string(msg.Payload()))
@@ -40,7 +41,7 @@ func (m *MQTTClient) Listen() {
 
 	m.client.Subscribe("parking/exit", 0, func(c mqtt.Client, msg mqtt.Message) {
 		if m.Handler != nil {
-			m.Handler.OnExit(c, msg)
+			m.Handler.OnExit(msg)
 			return
 		}
 		log.Println("Exit detected (no handler):", string(msg.Payload()))
@@ -48,7 +49,7 @@ func (m *MQTTClient) Listen() {
 
 	m.client.Subscribe("parking/space", 0, func(c mqtt.Client, msg mqtt.Message) {
 		if m.Handler != nil {
-			m.Handler.OnSpaceChange(c, msg)
+			m.Handler.OnSpaceChange(msg)
 			return
 		}
 		log.Println("Space change detected (no handler):", string(msg.Payload()))
