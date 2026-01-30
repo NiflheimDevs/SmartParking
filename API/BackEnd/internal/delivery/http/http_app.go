@@ -31,7 +31,8 @@ func NewHttpApp(cfg *config.Config, handlers *Handlers, middlewares *Middlewares
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://smartparking.niflheimdevs.ir", "https://www.smartparking.niflheimdevs.ir", "http://localhost:8080"},
+		//AllowOrigins:     []string{"https://smartparking.niflheimdevs.ir", "https://www.smartparking.niflheimdevs.ir", "http://localhost:8080"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
