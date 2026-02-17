@@ -1,6 +1,6 @@
 name: Smartparking-Frontend
 services:
-  app:
+  frontend:
     build:
       dockerfile: dockerfile
     image: ghcr.io/niflheimdevs/smartparking-frontend:latest
