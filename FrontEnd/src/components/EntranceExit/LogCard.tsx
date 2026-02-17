@@ -1,11 +1,16 @@
+import { useState } from "react";
+import InvoiceModal from "./Invoice";
+
 interface LogCardProps {
   log: any;
 }
 
 const LogCard = ({ log }: LogCardProps) => {
+  const [showInvoice, setShowInvoice] = useState(false);
   const isExited = log.exit_time && !log.exit_time.startsWith("0001");
 
   return (
+    <>
     <div className="border border-slate-700 bg-slate-900/70 rounded-xl p-4 shadow-md hover:shadow-lg transition">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-3">
@@ -51,8 +56,20 @@ const LogCard = ({ log }: LogCardProps) => {
           <span className="font-semibold text-slate-200">Price:</span>{" "}
           {log.price ? log.price.toLocaleString() + " تومان" : "—"}
         </p>
+        {isExited && (
+            <button
+              onClick={() => setShowInvoice(true)}
+              className="px-3 py-1.5 text-sm rounded-lg bg-accent text-black hover:bg-accent/80"
+            >
+              Invoice
+            </button>
+          )}
       </div>
     </div>
+    {showInvoice && (
+      <InvoiceModal log={log} onClose={() => setShowInvoice(false)} />
+    )}
+    </>
   );
 };
 

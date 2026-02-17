@@ -33,11 +33,11 @@ services:
       - redisdata:/data
     command: redis-server --save 60 1 --loglevel warning
 
-  app:
+  backend:
     build:
       context: ./BackEnd
       dockerfile: dockerfile
-    image: ghcr.io/niflheimdevs/smartparking
+    image: ghcr.io/niflheimdevs/smartparking-backend:latest
     container_name: Backend
     restart: unless-stopped
     depends_on:

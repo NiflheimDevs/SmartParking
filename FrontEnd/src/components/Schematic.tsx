@@ -50,7 +50,7 @@ const Schematic = () => {
     try {
       setGateLoading(label);
       await controlgate(gate, state);
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     } catch (err) {
       console.error(err);
     } finally {
